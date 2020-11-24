@@ -90,10 +90,6 @@ def avg_grt(traj, g1, g2, pbc=None, n_chunks=100, stride=10):
 def plot_grt(r, g_rt, xmax=0.8, ymax='peak', save='grt.pdf', pair='', cmap='bwr'):
     fig, ax = plt.subplots()
 
-    # colors = plt.cm.jet(np.linspace(0, 1, len(g_rt)))
-    # for i, g_ry in enumerate(g_rt):
-    #     ax.plot(r, g_ry, color=colors[i])
-
     c = np.linspace(0, 2.0, len(g_rt))
     rs = np.tile(r, (len(g_rt), 1))
     lc = multiline(rs, g_rt, c, cmap=cmap, ax=ax)
@@ -113,6 +109,40 @@ def plot_grt(r, g_rt, xmax=0.8, ymax='peak', save='grt.pdf', pair='', cmap='bwr'
     if save:
         plt.savefig(save)
     return fig, ax
+
+def plot_map(r, g_rt, xmax=2.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, save='map.pdf', pair='', cmap='viridis'):
+    fig, ax = plt.subplots()
+
+    extent = (0, total_t, 0, r.max())
+
+    image = plt.imshow(g_rt, origin='lower', vmin=vlim[0], vmax=vlim[1], extent=extent, aspect='auto', cmap=cmap)
+    axcb = fig.colorbar(image, extend='both')
+    axcb.set_label('G(r,t)')
+
+    ax.set_ylim(0.0, ymax)
+    ax.set_xlim(0.0, xmax)
+
+    ax.set_ylabel('t / ps)')
+    ax.set_xlabel('r / Å')
+    ax.set_title(f'van Hove dynamic correlation function {pair}')
+    if save:
+        plt.savefig(save)
+    return fig, ax
+
+
+def plot_both(r, g_rt, xmax=2.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, save='both.pdf', pair='', cmap='viridis'):
+    _, ax1 = plot_grt(r, g_rt, xmax=xmax, ymax='peak', save=False, pair=None, cmap=cmap)
+    _, ax2 = plot_map(r, g_rt, xmax=xmax, ymax=ymax, vlim=(0.90, 1.10),
+                      total_t=2.0, save=False, pair=None, cmap=cmap)
+
+    fig, axs = plt.subplots(1, 2, sharex=True)
+
+    axs[0] = ax1
+    axs[1] = ax2
+
+    if save:
+        plt.savefig(save)
+    return fig, axs
 
 
 def grid_sub(r1, r2):
