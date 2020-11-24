@@ -6,7 +6,7 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 from multiline import multiline
 from scipy.spatial.distance import cdist
-
+from rt_mic_p import rt_mic_p
 
 def dist(r1, r2, sum_axis=2):
     d = np.sqrt(np.sum((r1 - r2)**2, axis=sum_axis))
@@ -57,7 +57,7 @@ def compute_grt(rt_array, traj, r_range=(0.0, 2.0), bins=400):
     return r, g_rt
 
 
-def avg_grt(traj, g1, g2, pbc=None, n_chunks=100, stride=10):
+def avg_grt(traj, g1, g2, pbc=None, omp=False, n_chunks=100, stride=10):
     g_rts = []
     if isinstance(traj, md.core.trajectory.Trajectory):
         chunk_size = int(2.0 / traj.timestep)
@@ -65,7 +65,10 @@ def avg_grt(traj, g1, g2, pbc=None, n_chunks=100, stride=10):
         chunks = np.array_split(traj.xyz, n_chunks)
         for chunk in tqdm(chunks, desc='Progress over trajectory'):
             if pbc == 'ortho':
-                rt_array = rt_mic(chunk, g1, g2, chunk.unitcell_vectors)
+                if omp:
+                    rt_array = rt_mic_p(chunk, g1, g2, chunk.unitcell_vectors)
+                else:
+                    rt_array = rt_mic(chunk, g1, g2, chunk.unitcell_vectors)
             else:
                 rt_array = vrt(chunk, g1, g2)
             r, g_rt = compute_grt(rt_array, traj)
@@ -74,7 +77,10 @@ def avg_grt(traj, g1, g2, pbc=None, n_chunks=100, stride=10):
     elif isinstance(traj, Generator):
         for chunk in tqdm(traj, total=n_chunks, desc='Progress over trajectory'):
             if pbc == 'ortho':
-                rt_array = rt_mic(chunk.xyz[::stride], g1, g2, chunk.unitcell_vectors)
+                if omp:
+                    rt_array = rt_mic_p(chunk.xyz[::stride], g1, g2, chunk[::stride].unitcell_vectors)
+                else:
+                    rt_array = rt_mic(chunk.xyz[::stride], g1, g2, chunk[::stride].unitcell_vectors)
             else:
                 rt_array = vrt(chunk, g1, g2)
             r, g_rt = compute_grt(rt_array, chunk)
@@ -164,6 +170,7 @@ def rt_mic(xyz, g1, g2, box_vectors):
         r12 = r12.sum(axis=2)
         r12 = np.sqrt(r12)
         rt[t] = r12
+        # remove self interaction part of G(r,t)
         np.fill_diagonal(rt[t], np.inf)
 
     return rt
