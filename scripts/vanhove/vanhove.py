@@ -60,15 +60,17 @@ def compute_grt(rt_array, traj, r_range=(0.0, 2.0), bins=400):
 def avg_grt(traj, g1, g2, pbc=None, omp=False, n_chunks=100, stride=10):
     g_rts = []
     if isinstance(traj, md.core.trajectory.Trajectory):
+        traj = traj[::stride]
         chunk_size = int(2.0 / traj.timestep)
         n_chunks = int(np.floor(len(traj.time) / chunk_size))
         chunks = np.array_split(traj.xyz, n_chunks)
-        for chunk in tqdm(chunks, desc='Progress over trajectory'):
+        unitcell_vectors = np.array_split(traj.unitcell_vectors, n_chunks)
+        for chunk, unitcell_vector_chunk in zip(tqdm(chunks, total=n_chunks, desc='Progress over trajectory'), unitcell_vectors):
             if pbc == 'ortho':
                 if omp:
-                    rt_array = rt_mic_p(chunk, g1, g2, chunk.unitcell_vectors)
+                    rt_array = rt_mic_p(chunk, g1, g2, unitcell_vector_chunk)
                 else:
-                    rt_array = rt_mic(chunk, g1, g2, chunk.unitcell_vectors)
+                    rt_array = rt_mic(chunk, g1, g2, unitcell_vector_chunk)
             else:
                 rt_array = vrt(chunk, g1, g2)
             r, g_rt = compute_grt(rt_array, traj)
