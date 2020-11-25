@@ -165,7 +165,7 @@ def plot_map(r, g_rt, xmax=2.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, save='
     ax.set_ylim(0.0, ymax)
     ax.set_xlim(0.0, xmax)
 
-    ax.set_ylabel('t / ps)')
+    ax.set_ylabel('t / ps')
     ax.set_xlabel('r / Å')
     ax.set_title(f'van Hove dynamic correlation function {pair}')
     if save:
