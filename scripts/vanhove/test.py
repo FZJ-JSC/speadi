@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from vanhove import avg_grt, plot_grt, plot_map
+from rt_mic_p import rt_mic_p
 
 def prepare(iterator=True, single=False):
     topology = '../simbox/npt.gro'
@@ -39,7 +40,7 @@ def pmap(xmax=0.8, cmap='viridis', save='map.pdf'):
     plt.show()
 
 
-def test(omp=True, pbc='ortho', stride=20):
+def test(omp=True, pbc='ortho', stride=5):
     r, g_rt = avg_grt(t_all, sol, sol, n_chunks=50, omp=omp, pbc=pbc, stride=stride)
     globals().update(locals())
 

@@ -8,6 +8,14 @@ from multiline import multiline
 from scipy.spatial.distance import cdist
 from rt_mic_p import rt_mic_p
 
+import boost_histogram as bh
+import os
+
+threads = os.cpu_count()
+print(f'Using {threads} threads!')
+
+
+
 def dist(r1, r2, sum_axis=2):
     d = np.sqrt(np.sum((r1 - r2)**2, axis=sum_axis))
     return d
@@ -57,6 +65,33 @@ def compute_grt(rt_array, traj, r_range=(0.0, 2.0), bins=400):
     return r, g_rt
 
 
+def compute_grt_boost(rt_array, traj, r_range=(0.0, 2.0), bins=400):
+    Ni = len(rt_array[0,:,0])
+    Nj = len(rt_array[0,0,:])
+    n_frames = len(rt_array[:,0,0])
+    g_rt = np.empty((n_frames, bins))
+    axis = bh.axis.Regular(bins, r_range[0], r_range[1], overflow=False, underflow=False)
+    for t in range(n_frames):
+        hist = bh.Histogram(axis, storage=bh.storage.Int64())
+        hist.fill(rt_array[t].ravel(), threads=threads)
+        g_r = hist.view()
+        g_rt[t] = g_r
+
+    edges = axis.edges
+    r = 0.5 * (edges[1:] + edges[:-1])
+    r_vol = 4.0/3.0 * np.pi * (np.power(edges[1:], 3) - np.power(edges[:-1], 3))
+    Nj_density = Nj / traj.unitcell_volumes.mean()
+
+    # Shinohara's funny norming function doesn't lead to recognisable results...
+    # norm = 4 * np.pi * N_density * N * r**2
+
+    # Use normal RDF norming for each timestep
+    norm = Nj_density * r_vol * Ni
+    g_rt = g_rt / norm
+
+    return r, g_rt
+
+
 def avg_grt(traj, g1, g2, pbc=None, omp=False, n_chunks=100, stride=10):
     g_rts = []
     if isinstance(traj, md.core.trajectory.Trajectory):
@@ -73,7 +108,7 @@ def avg_grt(traj, g1, g2, pbc=None, omp=False, n_chunks=100, stride=10):
                     rt_array = rt_mic(chunk, g1, g2, unitcell_vector_chunk)
             else:
                 rt_array = vrt(chunk, g1, g2)
-            r, g_rt = compute_grt(rt_array, traj)
+            r, g_rt = compute_grt_boost(rt_array, traj)
             g_rts.append(g_rt)
 
     elif isinstance(traj, Generator):
@@ -85,7 +120,7 @@ def avg_grt(traj, g1, g2, pbc=None, omp=False, n_chunks=100, stride=10):
                     rt_array = rt_mic(chunk.xyz[::stride], g1, g2, chunk[::stride].unitcell_vectors)
             else:
                 rt_array = vrt(chunk, g1, g2)
-            r, g_rt = compute_grt(rt_array, chunk)
+            r, g_rt = compute_grt_boost(rt_array, chunk)
             g_rts.append(g_rt)
 
     else:

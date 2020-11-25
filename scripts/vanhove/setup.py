@@ -6,7 +6,7 @@ from numpy import get_include as npinc
 ext_modules = [
     Extension("rt_mic_p",
               ["rt_mic_p.pyx"],
-              extra_compile_args = ["-fopenmp", f"-I{npinc()}", "-lm"],
+              extra_compile_args = ["-O3", "-fopenmp", f"-I{npinc()}", "-lm"],
               extra_link_args = ["-fopenmp", "-lm"]
              )
 ]

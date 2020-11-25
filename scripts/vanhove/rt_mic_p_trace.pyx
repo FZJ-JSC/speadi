@@ -1,10 +1,10 @@
-# cython: profile=False
-# cython: linetrace=False
+# cython: profile=True
+# cython: linetrace=True
 # cython: binding=True
 # cython: boundscheck=False
 # cython: wraparound=False
-# distutils: define_macros=CYTHON_TRACE_NOGIL=0
-# distutils: define_macros=CYTHON_TRACE=0
+# distutils: define_macros=CYTHON_TRACE_NOGIL=1
+# distutils: define_macros=CYTHON_TRACE=1
 
 import numpy as np
 cimport numpy as np
