@@ -14,7 +14,7 @@ ext_modules = [
 setup(
     name='vanhove',
     version='0.1.0',
-    packages=['vanhove'],
+    packages=find_packages(),
     ext_modules=cythonize(ext_modules),
     author='Emile de Bruyn',
     author_email='e.de.bruyn@fz-juelich.de'
