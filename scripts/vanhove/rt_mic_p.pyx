@@ -42,4 +42,3 @@ def rt_mic_p(np.ndarray[float, ndim=3] chunk, long[:] g1,
 
     cdef np.ndarray[float, ndim = 3] rt_array = np.asarray(rt)
     return rt_array
-

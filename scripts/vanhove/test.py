@@ -1,10 +1,11 @@
 import mdtraj as md
-from mdtraj.utils import ensure_type
 import numpy as np
 import matplotlib.pyplot as plt
 
-from vanhove import avg_grt, plot_grt, plot_map
+from vanhove import grt
+from plotting import plot_grt, plot_map
 from rt_mic_p import rt_mic_p
+
 
 def prepare(iterator=True, single=False):
     topology = '../simbox/npt.gro'
@@ -14,7 +15,7 @@ def prepare(iterator=True, single=False):
         if single:
             t_all = next(t_all)
     else:
-        t_all = md.load(trajectory, top=topology)
+        t_all = md.load(trajectory, top=topology)[1:]
         if single:
             t_all = t_all[-200::5]
 
@@ -40,8 +41,8 @@ def pmap(xmax=0.8, cmap='viridis', save='map.pdf'):
     plt.show()
 
 
-def test(omp=True, pbc='ortho', stride=5):
-    r, g_rt = avg_grt(t_all, sol, sol, n_chunks=50, omp=omp, pbc=pbc, stride=stride)
+def test(opt=True, pbc='ortho', stride=5):
+    r, g_rt = grt(t_all, sol, sol, n_chunks=50, opt=opt, pbc=pbc, stride=stride)
     globals().update(locals())
 
 
@@ -53,7 +54,7 @@ def load(f='test.npy'):
 
 
 if __name__ == '__main__':
-    prepare()
-    test()
+    prepare(iterator=False)
+    test(opt=True, pbc='ortho')
     # plot(xmax=0.8)
     save()
