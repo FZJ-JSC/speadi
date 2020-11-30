@@ -13,6 +13,42 @@ from .histogram import _histogram
 
 
 def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0.0, 2.0), nbins=400):
+    """
+    Calculate G(r,t) for two groups given in a trajectory.
+    G(r,t) is calculated for a smaller time frame (typically 2 ps). G(r,t) is
+    then averaged over the whole trajectory supplied.
+
+    Parameters
+    ----------
+    traj : {mdtraj.trajectory, Generator}
+        MDTraj trajectory, or Generator of trajectories (obtained using mdtraj.iterload).
+    g1 : numpy.array
+        Numpy array of atom indices representing the group to calculate G(r,t) for.
+    g2 : numpy.array
+        Numpy array of atom indices representing the group to calculate G(r,t) with.
+
+    Other parameters
+    ----------------
+    pbc : {string, NoneType}
+        String representing the periodic boundary conditions of the simulation cell.
+        Currently, only 'ortho' for orthogonal simulation cells is implemented.
+    n_chunks : integer
+        Number of chunks in which to split the trajectory (if a whole trajectory is supplied).
+    stride : integer
+        Number of frames in the original trajectory to skip between each
+        calculation. E.g. stride = 10 means calculate distances only every 10th frame.
+    r_range : tuple(float, float)
+        Tuple over which r in G(r,t) is defined.
+    n_bins : integer
+        Number of bins (points in r to consider) in G(r,t)
+
+    Returns
+    -------
+    r : np.array
+        bin centers of G(r,t)
+    g_rt : np.array
+        averaged function values of G(r,t) for each time from t=0 considered
+    """
     g_rts = []
     if isinstance(traj, md.core.trajectory.Trajectory):
         traj = traj[::stride]
