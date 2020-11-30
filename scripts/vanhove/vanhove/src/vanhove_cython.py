@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 from scipy.spatial.distance import cdist
 
 from .multiline import multiline
-from .rt_mic_p import rt_mic_p
+from rt_mic_p import rt_mic_p
 
 import boost_histogram as bh
 import os
