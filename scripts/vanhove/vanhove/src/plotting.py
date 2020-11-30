@@ -4,7 +4,7 @@ import numpy as np
 from .multiline import multiline
 
 def plot_grt(r, g_rt, xmax=1.0, ymax='peak', title='pair', pair='', save='grt.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
-    if not 'ax' in dir():
+    if ax is None:
         fig, ax = plt.subplots()
     else:
         fig = plt.gcf()
@@ -43,7 +43,7 @@ def plot_grt(r, g_rt, xmax=1.0, ymax='peak', title='pair', pair='', save='grt.pd
 
 
 def plot_map(r, g_rt, xmax=1.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, title='pair', save='map.pdf', pair='', cmap='viridis', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
-    if not 'ax' in dir():
+    if ax is None:
         fig, ax = plt.subplots()
     else:
         fig = plt.gcf()
