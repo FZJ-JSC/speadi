@@ -4,9 +4,10 @@ import numpy as np
 from typing import Generator
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from multiline import multiline
 from scipy.spatial.distance import cdist
-from rt_mic_p import rt_mic_p
+
+from .multiline import multiline
+from .rt_mic_p import rt_mic_p
 
 import boost_histogram as bh
 import os

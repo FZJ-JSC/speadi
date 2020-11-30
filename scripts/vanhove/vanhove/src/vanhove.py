@@ -9,7 +9,7 @@ import math
 import numba
 from numba import njit, prange
 
-from histogram import _histogram
+from .histogram import _histogram
 
 
 def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0.0, 2.0), nbins=400):

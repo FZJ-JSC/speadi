@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
-from multiline import multiline
 import numpy as np
+
+from .multiline import multiline
 
 def plot_grt(r, g_rt, xmax=1.0, ymax='peak', title='pair', pair='', save='grt.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
     if not 'ax' in dir():

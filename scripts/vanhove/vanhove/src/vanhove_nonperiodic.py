@@ -4,7 +4,8 @@ import numpy as np
 from typing import Generator
 from tqdm import tqdm
 import matplotlib.pyplot as plt
-from multiline import multiline
+
+from .multiline import multiline
 
 
 def dist(r1, r2, sum_axis=2):
