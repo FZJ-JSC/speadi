@@ -1,8 +1,33 @@
+"""
+Simplified histogram function, that is able to be parallelised. Numpy's default 1d histogram function isn't able to run in numba's nopython mode during e.g. a prange.
+
+Boost-histogram might be faster for single histograms, but also aren't able to run during a prange without additional modification.
+
+Modified from the following sources:
+https://github.com/numba/numba-examples/blob/master/examples/density_estimation/histogram/impl.py
+https://numba.pydata.org/numba-examples/examples/density_estimation/histogram/results.html
+"""
+
 import numpy as np
 from numba import njit, prange, float64
 
 @njit
 def _compute_bin(x, bin_edges):
+    """
+    Compute the bin for a given value x.
+
+    Parameters
+    ----------
+    x : float
+        number to return bin for
+    bin_edges : numpy.array
+        array containing all bin edges
+
+    Returns
+    -------
+    bin : float
+    """
+
     # assuming uniform bins for now
     n = bin_edges.shape[0] - 1
     a_min = bin_edges[0]
@@ -22,6 +47,20 @@ def _compute_bin(x, bin_edges):
 
 @njit
 def _histogram(a, bin_edges):
+    """
+    Compute the histogram for an array a, given an array of bin edges.
+
+    Parameters
+    ----------
+    a : numpy.array
+        array to obtain a histogram for
+    bin_edges : numpy.array
+        array containing all bin edges
+
+    Returns
+    -------
+    hist : numpy.array
+    """
     hist = np.zeros((bin_edges.shape[0],), dtype=float64)
 
     for x in a.flat:
