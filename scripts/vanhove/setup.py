@@ -3,8 +3,6 @@ from Cython.Build import cythonize
 from numpy import get_include as npinc
 
 __version__ = '0.1.0'
-with open('vanhove/_version.py', 'w') as f:
-    f.write(f'__version__ = \'{__version__}\'')
 
 ext_modules = [
     Extension(
