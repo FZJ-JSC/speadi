@@ -63,17 +63,9 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
             f.seek(skip)
             for n in trange(n_chunks, total=n_chunks, desc='Progress over trajectory'):
                 chunk = f.read_as_traj(top, n_frames=int(chunk_size / stride), stride=stride)
-                if pbc == 'ortho':
-                    if opt:
-                        rt_array = _compute_rt_mic_numba(chunk.xyz, g1, g2, chunk.unitcell_vectors)
-                        r, g_rt = _compute_grt_numba(rt_array, chunk.unitcell_volumes, r_range, nbins)
-                    else:
-                        rt_array = _compute_rt_mic_vectorized(chunk.xyz, g1, g2, chunk.unitcell_vectors)
-                        r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
-                else:
-                    rt_array = _compute_rt_vectorized(chunk.xyz, g1, g2)
-                    r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
-                g_rts.append(g_rt)
+                r, g_rts = append_grts(g_rts, chunk.xyz, g1, g2,
+                                    chunk.unitcell_vectors, chunk.unitcell_volumes,
+                                    r_range, nbins, pbc, opt)
 
     elif isinstance(traj, md.core.trajectory.Trajectory):
         traj = traj[::stride]
@@ -81,37 +73,36 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         n_chunks = int(np.floor(len(traj.time) // chunk_size))
         for n in trange(n_chunks, total=n_chunks, desc='Progress over trajectory'):
             chunk = traj[int(chunk_size * n):int(chunk_size * (1 + n))]
-            if pbc == 'ortho':
-                if opt:
-                    rt_array = _compute_rt_mic_numba(chunk.xyz, g1, g2, chunk.unitcell_vectors)
-                    r, g_rt = _compute_grt_numba(rt_array, chunk.unitcell_volumes, r_range, nbins)
-                else:
-                    rt_array = _compute_rt_mic_vectorized(chunk.xyz, g1, g2, chunk.unitcell_vectors)
-                    r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
-            else:
-                rt_array = _compute_rt_vectorized(chunk.xyz, g1, g2)
-                r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
-            g_rts.append(g_rt)
+            r, g_rts = append_grts(g_rts, chunk.xyz, g1, g2,
+                                chunk.unitcell_vectors, chunk.unitcell_volumes,
+                                r_range, nbins, pbc, opt)
 
     elif isinstance(traj, Generator):
         for chunk in tqdm(traj, total=n_chunks, desc='Progress over trajectory'):
-            if pbc == 'ortho':
-                if opt:
-                    rt_array = _compute_rt_mic_numba(chunk.xyz[::stride], g1, g2, chunk[::stride].unitcell_vectors)
-                    r, g_rt = _compute_grt_numba(rt_array, chunk.unitcell_volumes, r_range, nbins)
-                else:
-                    rt_array = _compute_rt_mic_vectorized(chunk.xyz[::stride], g1, g2, chunk[::stride].unitcell_vectors)
-                    r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
-            else:
-                rt_array = _compute_rt_vectorized(chunk.xyz[::stride], g1, g2)
-                r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
-            g_rts.append(g_rt)
+            r, g_rts = append_grts(g_rts, chunk.xyz[::stride], g1, g2,
+                                chunk[::stride].unitcell_vectors, chunk[::stride].unitcell_volumes,
+                                r_range, nbins, pbc, opt)
 
     else:
         raise TypeError('You must input either the path to a trajectory together with a MDTraj topology instance, or an MDTraj trajectory, or a generator of such.')
 
     g_rt = np.mean(np.array(g_rts), axis=0)
     return r, g_rt
+
+
+def append_grts(g_rts, xyz, g1, g2, cuvec, cuvol, r_range, nbins, pbc, opt):
+    if pbc == 'ortho':
+        if opt:
+            rt_array = _compute_rt_mic_numba(xyz, g1, g2, cuvec)
+            r, g_rt = _compute_grt_numba(rt_array, cuvol, r_range, nbins)
+        else:
+            rt_array = _compute_rt_mic_vectorized(xyz, g1, g2, cuvec)
+            r, g_rt = _compute_grt(rt_array, cuvol, r_range, nbins)
+    else:
+        rt_array = _compute_rt_vectorized(xyz, g1, g2)
+        r, g_rt = _compute_grt(rt_array, cuvol, r_range, nbins)
+    g_rts.append(g_rt)
+    return r, g_rts
 
 
 @njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
