@@ -12,7 +12,9 @@ from numba import njit, prange
 from .histogram import _histogram
 
 
-def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0.0, 2.0), nbins=400):
+def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
+        n_chunks=100, chunk_size=200, skip=1, stride=10,
+        r_range=(0.0, 2.0), nbins=400):
     """
     Calculate G(r,t) for two groups given in a trajectory.
     G(r,t) is calculated for a smaller time frame (typically 2 ps). G(r,t) is
@@ -20,7 +22,7 @@ def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0
 
     Parameters
     ----------
-    traj : {mdtraj.trajectory, Generator}
+    traj : {string, mdtraj.trajectory, Generator}
         MDTraj trajectory, or Generator of trajectories (obtained using mdtraj.iterload).
     g1 : numpy.array
         Numpy array of atom indices representing the group to calculate G(r,t) for.
@@ -29,17 +31,23 @@ def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0
 
     Other parameters
     ----------------
+    top : mdtraj.topology
+        Topology object. Needed if trajectory given as a path to lazy-load.
     pbc : {string, NoneType}
         String representing the periodic boundary conditions of the simulation cell.
         Currently, only 'ortho' for orthogonal simulation cells is implemented.
     n_chunks : integer
         Number of chunks in which to split the trajectory (if a whole trajectory is supplied).
+    chunk_size : integer
+        Number of frames in each chunk.
+    skip : integer
+        Number of frames to skip at the beginning if giving a path as trajectory.
     stride : integer
         Number of frames in the original trajectory to skip between each
         calculation. E.g. stride = 10 means calculate distances only every 10th frame.
     r_range : tuple(float, float)
         Tuple over which r in G(r,t) is defined.
-    n_bins : integer
+    nbins : integer
         Number of bins (points in r to consider) in G(r,t)
 
     Returns
@@ -50,7 +58,24 @@ def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0
         averaged function values of G(r,t) for each time from t=0 considered
     """
     g_rts = []
-    if isinstance(traj, md.core.trajectory.Trajectory):
+    if isinstance(traj, str) and isinstance(top, md.core.topology.Topology):
+        with md.open(traj) as f:
+            f.seek(skip)
+            for n in trange(n_chunks, total=n_chunks, desc='Progress over trajectory'):
+                chunk = f.read_as_traj(top, n_frames=int(chunk_size / stride), stride=stride)
+                if pbc == 'ortho':
+                    if opt:
+                        rt_array = _compute_rt_mic_numba(chunk.xyz, g1, g2, chunk.unitcell_vectors)
+                        r, g_rt = _compute_grt_numba(rt_array, chunk.unitcell_volumes, r_range, nbins)
+                    else:
+                        rt_array = _compute_rt_mic_vectorized(chunk.xyz, g1, g2, chunk.unitcell_vectors)
+                        r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
+                else:
+                    rt_array = _compute_rt_vectorized(chunk.xyz, g1, g2)
+                    r, g_rt = _compute_grt(rt_array, chunk.unitcell_volumes, r_range, nbins)
+                g_rts.append(g_rt)
+
+    elif isinstance(traj, md.core.trajectory.Trajectory):
         traj = traj[::stride]
         chunk_size = int(2.0 / traj.timestep)
         n_chunks = int(np.floor(len(traj.time) // chunk_size))
@@ -83,7 +108,7 @@ def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0
             g_rts.append(g_rt)
 
     else:
-        raise TypeError('You must input either an MDTraj trajectory, or a generator of such.')
+        raise TypeError('You must input either the path to a trajectory together with a MDTraj topology instance, or an MDTraj trajectory, or a generator of such.')
 
     g_rt = np.mean(np.array(g_rts), axis=0)
     return r, g_rt
@@ -91,6 +116,30 @@ def grt(traj, g1, g2, pbc='ortho', opt=True, n_chunks=100, stride=10, r_range=(0
 
 @njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
 def _compute_rt_mic_numba(chunk, g1, g2, bv):
+    """
+    Numba jitted and parallelised version of function to calculate
+    the distance matrix between each atom in group 1 at time zero and
+    each atom in group 2 at each frame supplied. Minimum image convention
+    for orthogonal simulation boxes applied.
+
+    Parameters
+    ----------
+    chunk : slice of mdtraj.trajectory
+        Slice of trajectory or chunk from mdtraj.iterload of time length t_max
+        to calculate G(r,t) over.
+    g1 : numpy.array
+        Numpy array of atom indices representing the group to calculate G(r,t) for.
+    g2 : numpy.array
+        Numpy array of atom indices representing the group to calculate G(r,t) with.
+    bv : numpy.array
+        simulation box vectors (which vary over time) as supplied by
+        mdtraj.trajectory.unitcell_vectors.
+
+    Returns
+    -------
+    rt : numpy.array
+        Numpy array containing the time-distance matrix.
+    """
     rt0 = chunk[0]
     r1 = rt0[g1]
     xyz = chunk[:, g2]
@@ -120,6 +169,27 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
 
 @njit(['Tuple((f8[:],f8[:,:]))(f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
 def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
+    """
+    Numba jitted and parallelised version of histogram of the time-distance matrix.
+
+    Parameters
+    ----------
+    rt_array : numpy.array
+        Time-distance matrix from which to calculate the histogram.
+    chunk_unitcell_volumes : numpy.array
+        Array with volumes of each frame considered.
+    r_range : tuple(float, float)
+        Tuple over which r in G(r,t) is defined.
+    nbins : integer
+        Number of bins (points in r to consider) in G(r,t)
+
+    Returns
+    -------
+    r : np.array
+        bin centers of G(r,t)
+    g_rt : np.array
+        function values of G(r,t) for each time from t=0 considered, not averaged over whole trajectory.
+    """
     Ni = rt_array.shape[1]
     Nj = rt_array.shape[2]
     n_frames = rt_array.shape[0]
@@ -145,6 +215,9 @@ def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
 
 
 def _compute_rt_vectorized(xyz, g1, g2):
+    """
+    Vectorised version of _compute_rt
+    """
     rt = np.empty((xyz.shape[0], g1.shape[0], g2.shape[0]))
     r01 = xyz[0, g1]
     for t in range(rt.shape[0]):
@@ -155,6 +228,9 @@ def _compute_rt_vectorized(xyz, g1, g2):
 
 
 def _grid_sub(r1, r2):
+    """
+    
+    """
     r12 = np.stack([r1]*len(r2), axis=0) - np.stack([r2]*len(r1), axis=1)
     return r12
 
