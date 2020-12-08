@@ -12,10 +12,7 @@ from rt_mic_p import rt_mic_p
 import boost_histogram as bh
 import os
 
-threads = os.cpu_count()
-print(f'Using {threads} threads!')
-
-
+from numba import get_num_threads
 
 def dist(r1, r2, sum_axis=2):
     d = np.sqrt(np.sum((r1 - r2)**2, axis=sum_axis))
@@ -74,7 +71,7 @@ def compute_grt_boost(rt_array, traj, r_range=(0.0, 2.0), bins=400):
     axis = bh.axis.Regular(bins, r_range[0], r_range[1], overflow=False, underflow=False)
     for t in range(n_frames):
         hist = bh.Histogram(axis, storage=bh.storage.Int64())
-        hist.fill(rt_array[t].ravel(), threads=threads)
+        hist.fill(rt_array[t].ravel(), threads=get_num_threads())
         g_r = hist.view()
         g_rt[t] = g_r
 

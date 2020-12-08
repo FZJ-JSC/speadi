@@ -14,3 +14,6 @@ from .src.vanhove_cython import avg_grt as grt_cython
 from .src.plotting import plot_grt
 from .src.plotting import plot_map
 
+from numba import get_num_threads
+
+print(f'\nNumba currently using {get_num_threads()} threads with shared memory! Reduce this number by passing \"numba.set_num_threads(x)\" with an apropriate integer value.\n')
