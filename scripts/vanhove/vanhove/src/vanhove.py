@@ -71,15 +71,23 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         g2 = [g2]
 
     if isinstance(traj, str) and isinstance(top, md.core.topology.Topology):
+        g1_lens = np.array([len(x) for x in g1], dtype=np.int64)
+        g2_lens = np.array([len(x) for x in g2], dtype=np.int64)
+        g1_array = np.empty((len(g1), g1_lens.max()), dtype=np.int64)
+        g2_array = np.empty((len(g2), g2_lens.max()), dtype=np.int64)
+        g1_array[:,:], g2_array[:,:] = np.nan, np.nan
+        for i in range(g1_array.shape[0]):
+            g1_array[i,:len(g1[i])] = g1[i]
+        for i in range(g2_array.shape[0]):
+            g2_array[i,:len(g2[i])] = g2[i]
         with md.open(traj) as f:
             f.seek(skip)
             for n in trange(n_chunks, total=n_chunks, desc='Progress over trajectory'):
                 chunk = f.read_as_traj(top, n_frames=int(chunk_size / stride), stride=stride)
-                for i, sub_g1 in enumerate(g1):
-                    for j, sub_g2 in enumerate(g2):
-                        r, g_rts[i][j][n] = append_grts(chunk.xyz, sub_g1, sub_g2,
-                                                        chunk.unitcell_vectors, chunk.unitcell_volumes,
-                                                        r_range, nbins, pbc, opt)
+                r, g_rts = _append_grts(g_rts, n, chunk.xyz, g1_array, g2_array,
+                                        chunk.unitcell_vectors, chunk.unitcell_volumes,
+                                        r_range, nbins, pbc, opt,
+                                        g1_lens=g1_lens, g2_lens=g2_lens)
 
     elif isinstance(traj, md.core.trajectory.Trajectory):
         traj = traj[::stride]
@@ -87,20 +95,16 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         n_chunks = int(np.floor(len(traj.time) // chunk_size))
         for n in trange(n_chunks, total=n_chunks, desc='Progress over trajectory'):
             chunk = traj[int(chunk_size * n):int(chunk_size * (1 + n))]
-            for i, sub_g1 in enumerate(g1):
-                for j, sub_g2 in enumerate(g2):
-                    r, g_rts[i][j][n] = append_grts(chunk.xyz, sub_g1, sub_g2,
-                                           chunk.unitcell_vectors, chunk.unitcell_volumes,
-                                           r_range, nbins, pbc, opt)
+            r, g_rts = _append_grts(g_rts, n, chunk.xyz, g1, g2,
+                                   chunk.unitcell_vectors, chunk.unitcell_volumes,
+                                    r_range, nbins, pbc, opt,)
 
     elif isinstance(traj, Generator):
         n = 0
         for chunk in tqdm(traj, total=n_chunks, desc='Progress over trajectory'):
-            for i, sub_g1 in enumerate(g1):
-                for j, sub_g2 in enumerate(g2):
-                    r, g_rts[i][j][n] = append_grts(chunk.xyz[::stride], sub_g1, sub_g2,
-                                           chunk[::stride].unitcell_vectors, chunk[::stride].unitcell_volumes,
-                                           r_range, nbins, pbc, opt)
+            r, g_rts = _append_grts(g_rts, n, chunk.xyz[::stride], g1, g2,
+                                    chunk[::stride].unitcell_vectors, chunk[::stride].unitcell_volumes,
+                                    r_range, nbins, pbc, opt,)
             if n >= n_chunks - 1:
                 break
             n += 1
@@ -112,18 +116,19 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
     return r, g_rt
 
 
-def append_grts(xyz, g1, g2, cuvec, cuvol, r_range, nbins, pbc, opt):
+def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol,
+                 r_range, nbins, pbc, opt,
+                 g1_lens=None, g2_lens=None):
     if pbc == 'ortho':
         if opt:
-            rt_array = _compute_rt_mic_numba(xyz, g1, g2, cuvec)
-            r, g_rt = _compute_grt_numba(rt_array, cuvol, r_range, nbins)
+            g_rts = _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins)
+            edges = np.linspace(r_range[0], r_range[1], nbins+1)
+            r = 0.5 * (edges[1:] + edges[:-1])
         else:
-            rt_array = _compute_rt_mic_vectorized(xyz, g1, g2, cuvec)
-            r, g_rt = _compute_grt(rt_array, cuvol, r_range, nbins)
+            r, g_rts = _mic_append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins)
     else:
-        rt_array = _compute_rt_vectorized(xyz, g1, g2)
-        r, g_rt = _compute_grt(rt_array, cuvol, r_range, nbins)
-    return r, g_rt
+        r, g_rts = _plain_append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins)
+    return r, g_rts
 
 
 @njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
@@ -179,7 +184,7 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
     return rt
 
 
-@njit(['Tuple((f8[:],f8[:,:]))(f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
+@njit(['f8[:,:](f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
 def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
     """
     Numba jitted and parallelised version of histogram of the time-distance matrix.
@@ -223,7 +228,7 @@ def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
     norm = Nj_density * r_vol * Ni
     g_rt = g_rt / norm
 
-    return r, g_rt
+    return g_rt
 
 
 def _compute_rt_vectorized(xyz, g1, g2):
@@ -288,3 +293,28 @@ def _compute_grt(rt_array, chunk_unitcell_volumes, r_range, nbins):
     g_rt = g_rt / norm
 
     return r, g_rt
+
+
+@njit(['f4[:,:,:,:,:](f4[:,:,:,:,:],i8,f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
+def _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins):
+    for i in prange(g1.shape[0]):
+        for j in prange(g2.shape[0]):
+            rt_array = _compute_rt_mic_numba(xyz, g1[i][:g1_lens[i]], g2[j][:g2_lens[j]], cuvec)
+            g_rts[i,j,n] = _compute_grt_numba(rt_array, cuvol, r_range, nbins)
+    return g_rts
+
+
+def _mic_append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins):
+    for i, sub_g1 in enumerate(g1):
+        for j, sub_g2 in enumerate(g2):
+            rt_array = _compute_rt_mic_vectorized(xyz, sub_g1, sub_g2, cuvec)
+            r, g_rts[i,j,n] = _compute_grt(rt_array, cuvol, r_range, nbins)
+    return r, g_rts
+
+
+def _plain_append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins):
+    for i, sub_g1 in enumerate(g1):
+        for j, sub_g2 in enumerate(g2):
+            rt_array = _compute_rt_vectorized(xyz, sub_g1, sub_g2)
+            r, g_rts[i,j,n] = _compute_grt(rt_array, cuvol, r_range, nbins)
+    return r, g_rts
