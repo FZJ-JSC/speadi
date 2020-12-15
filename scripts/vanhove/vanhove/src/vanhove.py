@@ -13,7 +13,7 @@ from .histogram import _histogram
 
 
 def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
-        n_chunks=100, chunk_size=200, skip=1, stride=10,
+        n_chunks=100, chunk_size=200, overlap=False, skip=1, stride=10,
         r_range=(0.0, 2.0), nbins=400):
     """
     Calculate G(r,t) for two groups given in a trajectory.
@@ -40,6 +40,8 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         Number of chunks in which to split the trajectory (if a whole trajectory is supplied).
     chunk_size : integer
         Number of frames in each chunk.
+    overlap : {int, False}
+        Positive integer number of frames between overlapping chunks.
     skip : integer
         Number of frames to skip at the beginning if giving a path as trajectory.
     stride : integer
@@ -88,6 +90,8 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
                                         chunk.unitcell_vectors, chunk.unitcell_volumes,
                                         r_range, nbins, pbc, opt,
                                         g1_lens=g1_lens, g2_lens=g2_lens)
+                if isinstance(overlap, int) and overlap >= 1:
+                    f.seek(-chunk_size + overlap, 1)
 
     elif isinstance(traj, md.core.trajectory.Trajectory):
         traj = traj[::stride]
