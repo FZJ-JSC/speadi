@@ -2,7 +2,7 @@ from setuptools import setup, find_packages, Extension
 from Cython.Build import cythonize
 from numpy import get_include as npinc
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 
 ext_modules = [
     Extension(
