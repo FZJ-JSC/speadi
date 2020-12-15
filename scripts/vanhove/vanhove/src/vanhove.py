@@ -58,15 +58,15 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         averaged function values of G(r,t) for each time from t=0 considered
     """
     if isinstance(g1, list) and isinstance(g2, list):
-        g_rts = np.empty((len(g1), len(g2), n_chunks, int(chunk_size//stride), nbins), dtype=np.float32)
+        g_rts = np.zeros((len(g1), len(g2), int(chunk_size//stride), nbins), dtype=np.float32)
     elif isinstance(g1, list) and not isinstance(g2, list):
-        g_rts = np.empty((len(g1), 1, n_chunks, int(chunk_size//stride), nbins), dtype=np.float32)
+        g_rts = np.zeros((len(g1), 1, int(chunk_size//stride), nbins), dtype=np.float32)
         g2 = [g2]
     elif not isinstance(g1, list) and isinstance(g2, list):
-        g_rts = np.empty((1, len(g2), n_chunks, int(chunk_size//stride), nbins), dtype=np.float32)
+        g_rts = np.zeros((1, len(g2), int(chunk_size//stride), nbins), dtype=np.float32)
         g1 = [g1]
     else:
-        g_rts = np.empty((1, 1, n_chunks, int(chunk_size//stride), nbins), dtype=np.float32)
+        g_rts = np.zeros((1, 1, int(chunk_size//stride), nbins), dtype=np.float32)
         g1 = [g1]
         g2 = [g2]
 
@@ -112,7 +112,7 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
     else:
         raise TypeError('You must input either the path to a trajectory together with a MDTraj topology instance, or an MDTraj trajectory, or a generator of such.')
 
-    g_rt = np.mean(np.array(g_rts), axis=2)
+    g_rt = g_rts / n_chunks
     return r, g_rt
 
 
@@ -295,12 +295,12 @@ def _compute_grt(rt_array, chunk_unitcell_volumes, r_range, nbins):
     return r, g_rt
 
 
-@njit(['f4[:,:,:,:,:](f4[:,:,:,:,:],i8,f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
+@njit(['f4[:,:,:,:](f4[:,:,:,:],i8,f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
 def _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins):
     for i in prange(g1.shape[0]):
         for j in prange(g2.shape[0]):
             rt_array = _compute_rt_mic_numba(xyz, g1[i][:g1_lens[i]], g2[j][:g2_lens[j]], cuvec)
-            g_rts[i,j,n] = _compute_grt_numba(rt_array, cuvol, r_range, nbins)
+            g_rts[i,j] += _compute_grt_numba(rt_array, cuvol, r_range, nbins)
     return g_rts
 
 
@@ -308,7 +308,8 @@ def _mic_append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins):
     for i, sub_g1 in enumerate(g1):
         for j, sub_g2 in enumerate(g2):
             rt_array = _compute_rt_mic_vectorized(xyz, sub_g1, sub_g2, cuvec)
-            r, g_rts[i,j,n] = _compute_grt(rt_array, cuvol, r_range, nbins)
+            r, g_rt_res = _compute_grt(rt_array, cuvol, r_range, nbins)
+            g_rts[i,j] += g_rt_res
     return r, g_rts
 
 
@@ -316,5 +317,6 @@ def _plain_append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins):
     for i, sub_g1 in enumerate(g1):
         for j, sub_g2 in enumerate(g2):
             rt_array = _compute_rt_vectorized(xyz, sub_g1, sub_g2)
-            r, g_rts[i,j,n] = _compute_grt(rt_array, cuvol, r_range, nbins)
+            r, g_rt_res = _compute_grt(rt_array, cuvol, r_range, nbins)
+            g_rts[i,j] += g_rt_res
     return r, g_rts
