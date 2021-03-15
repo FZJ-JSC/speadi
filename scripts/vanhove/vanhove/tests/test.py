@@ -3,7 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from vanhove import grt
-from plotting import plot_grt, plot_map
+from vanhove import plot_grt, plot_map
 from rt_mic_p import rt_mic_p
 
 
