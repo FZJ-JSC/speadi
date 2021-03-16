@@ -6,8 +6,7 @@ from scipy.spatial.distance import cdist
 
 import numpy as np
 import math
-import numba
-from numba import njit, prange
+from numba import njit, prange, float32, float64
 
 from .histogram import _histogram
 
@@ -165,8 +164,8 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
     r1 = rt0[g1]
     xyz = chunk[:, g2]
 
-    rt = np.empty((chunk.shape[0], g1.shape[0], g2.shape[0]), dtype=numba.float32)
-    rtd = np.empty((chunk.shape[0], g1.shape[0], g2.shape[0], 3), dtype=numba.float32)
+    rt = np.empty((chunk.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
+    rtd = np.empty((chunk.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
 
     frames = chunk.shape[0]
 
@@ -214,7 +213,7 @@ def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
     Ni = rt_array.shape[1]
     Nj = rt_array.shape[2]
     n_frames = rt_array.shape[0]
-    g_rt = np.empty((n_frames, nbins), dtype=numba.float64)
+    g_rt = np.empty((n_frames, nbins), dtype=float64)
     edges = np.linspace(r_range[0], r_range[1], nbins+1)
     for t in prange(n_frames):
         # g_r, edges = np.histogram(rt_array[t], range=r_range, bins=bins)
