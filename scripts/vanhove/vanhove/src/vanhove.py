@@ -6,10 +6,11 @@ from scipy.spatial.distance import cdist
 
 import numpy as np
 import math
-from numba import njit, prange, float32, float64
+from numba import njit, prange, float32, float64, get_num_threads, set_num_threads
 
 from .histogram import _histogram
 
+set_num_threads(get_num_threads())
 
 def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         n_chunks=100, chunk_size=200, overlap=False, skip=1, stride=10,
