@@ -11,7 +11,7 @@ https://numba.pydata.org/numba-examples/examples/density_estimation/histogram/re
 import numpy as np
 from numba import njit, prange, float64
 
-@njit
+@njit(['f8(f8,f8[:])'], fastmath=True, nogil=True)
 def _compute_bin(x, bin_edges):
     """
     Compute the bin for a given value x.
@@ -40,12 +40,12 @@ def _compute_bin(x, bin_edges):
     bin = int(n * (x - a_min) / (a_max - a_min))
 
     if bin < 0 or bin >= n:
-        return None
+        return np.inf
     else:
         return bin
 
 
-@njit
+@njit(['f8[:](f4[:,:,:],f8[:])'], parallel=True, fastmath=True, nogil=True)
 def _histogram(a, bin_edges):
     """
     Compute the histogram for an array a, given an array of bin edges.
