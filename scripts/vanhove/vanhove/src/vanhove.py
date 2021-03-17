@@ -299,9 +299,9 @@ def _compute_grt(rt_array, chunk_unitcell_volumes, r_range, nbins):
     return r, g_rt
 
 
-@njit(['f4[:,:,:,:](f4[:,:,:,:],i8,f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=False, fastmath=True, nogil=True)
+@njit(['f4[:,:,:,:](f4[:,:,:,:],i8,f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
 def _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins):
-    for i in range(g1.shape[0]):
+    for i in prange(g1.shape[0]):
         for j in range(g2.shape[0]):
             rt_array = _compute_rt_mic_numba(xyz, g1[i][:g1_lens[i]], g2[j][:g2_lens[j]], cuvec)
             g_rts[i,j] += _compute_grt_numba(rt_array, cuvol, r_range, nbins)
