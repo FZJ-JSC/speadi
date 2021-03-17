@@ -42,15 +42,20 @@ def plot_grt(r, g_rt, xmax=10.0, t_max=2.0, ymax='peak', title='pair', pair='', 
     return fig, ax
 
 
-def plot_map(r, g_rt, xmax=10.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, title='pair', save='map.pdf', pair='', cmap='viridis', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
+def plot_map(r, g_rt, xmax=10.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, total_r=20.0, title='pair', save='map.pdf', pair='', cmap='viridis', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
     if ax is None:
         fig, ax = plt.subplots()
     else:
         fig = plt.gcf()
 
-    extent = (0, total_t, 0, r.max() * 10)
+    extent = (0, xmax, 0, ymax)
+    xmix = int(g_rt.shape[1] / total_r * xmax)
+    ymix = int(g_rt.shape[0] / total_t * ymax)
 
-    image = ax.imshow(g_rt, origin='lower', vmin=vlim[0], vmax=vlim[1], extent=extent, aspect='auto', cmap=cmap)
+    assert xmax <= total_r, f'x-axis cannot extend beyond the maximum radial bin ({total_r} Å)'
+    assert ymax <= total_t, f'y-axis cannot extend beyond the maximum time ({total_t} ps)'
+
+    image = ax.imshow(g_rt[:ymix,:xmix], origin='lower', vmin=vlim[0], vmax=vlim[1], extent=extent, aspect='auto', cmap=cmap)
     if cbar:
         if 'cax' in dir():
             axcb = plt.colorbar(image, cax=cax, extend='both')
@@ -58,8 +63,8 @@ def plot_map(r, g_rt, xmax=10.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, title
             axcb = plt.colorbar(image, ax=ax, extend='both')
         axcb.set_label('G(r,t)')
 
-    ax.set_ylim(0.0, ymax)
-    ax.set_xlim(0.0, xmax)
+    # ax.set_ylim(0.0, ymax)
+    # ax.set_xlim(0.0, xmax)
 
     if ylabel:
         ax.set_ylabel('t / ps')
