@@ -10,7 +10,7 @@ def plot_grt(r, g_rt, xmax=10.0, t_max=2.0, ymax='peak', title='pair', pair='', 
         fig = plt.gcf()
 
     c = np.linspace(0, t_max, g_rt.shape[0])
-    rs = np.tile(r * 10, (len(g_rt), 1))
+    rs = np.tile(r * 10, (g_rt.shape[0], 1))
     lc = multiline(rs, g_rt, c, cmap=cmap, ax=ax)
     if cbar:
         if 'cax' in dir():
