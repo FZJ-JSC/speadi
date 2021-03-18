@@ -12,22 +12,22 @@ from .histogram import _histogram
 
 set_num_threads(get_num_threads())
 
-def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
+def gr(traj, g1, g2, top=None, pbc='ortho', opt=True,
         n_chunks=100, chunk_size=200, overlap=False, skip=1, stride=10,
         r_range=(0.0, 2.0), nbins=400):
     """
-    Calculate G(r,t) for two groups given in a trajectory.
-    G(r,t) is calculated for a smaller time frame (typically 2 ps). G(r,t) is
-    then averaged over the whole trajectory supplied.
+    Calculate g(r,t) for two groups given in a trajectory.
+    g(r) is calculated for each frame in the trajectory, then averaged over specified chunks
+    of time, returning g(r,t) (t representing the time during the trajectory).
 
     Parameters
     ----------
     traj : string
         MDTraj trajectory, or Generator of trajectories (obtained using mdtraj.iterload).
     g1 : numpy.array
-        Numpy array of atom indices representing the group to calculate G(r,t) for.
+        Numpy array of atom indices representing the group to calculate g(r,t) for.
     g2 : numpy.array
-        Numpy array of atom indices representing the group to calculate G(r,t) with.
+        Numpy array of atom indices representing the group to calculate g(r,t) with.
 
     Other parameters
     ----------------
@@ -48,16 +48,16 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         Number of frames in the original trajectory to skip between each
         calculation. E.g. stride = 10 means calculate distances only every 10th frame.
     r_range : tuple(float, float)
-        Tuple over which r in G(r,t) is defined.
+        Tuple over which r in g(r,t) is defined.
     nbins : integer
-        Number of bins (points in r to consider) in G(r,t)
+        Number of bins (points in r to consider) in g(r,t)
 
     Returns
     -------
     r : np.array
-        bin centers of G(r,t)
+        bin centers of g(r,t)
     g_rt : np.array
-        averaged function values of G(r,t) for each time from t=0 considered
+        averaged function values of g(r,t) for each time from t=0 considered
     """
     if isinstance(g1, list) and isinstance(g2, list):
         g_rts = np.zeros((len(g1), len(g2), int(chunk_size//stride), nbins), dtype=np.float32)
@@ -127,9 +127,9 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
     ----------
     chunk : slice of mdtraj.trajectory
         Slice of trajectory or chunk from mdtraj.iterload of time length t_max
-        to calculate G(r,t) over.
+        to calculate g(r,t) over.
     g1 : numpy.array
-        Numpy array of atom indices representing the group to calculate G(r,t) for.
+        Numpy array of atom indices representing the group to calculate g(r,t) for.
     g2 : numpy.array
         Numpy array of atom indices representing the group to calculate G(r,t) with.
     bv : numpy.array
@@ -141,8 +141,9 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
     rt : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    rt0 = chunk[0]
-    r1 = rt0[g1]
+    # rt0 = chunk[0]
+    # r1 = rt0[g1]
+    r1 = chunk[:, g1]
     xyz = chunk[:, g2]
 
     rt = np.empty((chunk.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
@@ -152,10 +153,10 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
 
     for t in prange(frames):
         for i in prange(g1.shape[0]):
-            for j in prange(g2.shape[0]):
+            for j in range(g2.shape[0]):
                 rt[t][i][j] = 0
                 for coord in range(3):
-                    rtd[t][i][j][coord] = r1[i][coord] - xyz[t][j][coord]
+                    rtd[t][i][j][coord] = r1[t][i][coord] - xyz[t][j][coord]
                     rtd[t][i][j][coord] -= bv[t][coord][coord] * round(rtd[t][i][j][coord] / bv[t][coord][coord])
                     rtd[t][i][j][coord] = rtd[t][i][j][coord] ** 2
                     rt[t][i][j] += rtd[t][i][j][coord]
@@ -180,9 +181,9 @@ def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
     chunk_unitcell_volumes : numpy.array
         Array with volumes of each frame considered.
     r_range : tuple(float, float)
-        Tuple over which r in G(r,t) is defined.
+        Tuple over which r in g(r,t) is defined.
     nbins : integer
-        Number of bins (points in r to consider) in G(r,t)
+        Number of bins (points in r to consider) in g(r,t)
 
     Returns
     -------
@@ -268,9 +269,6 @@ def _compute_grt(rt_array, chunk_unitcell_volumes, r_range, nbins):
     r = 0.5 * (edges[1:] + edges[:-1])
     r_vol = 4.0/3.0 * np.pi * (np.power(edges[1:], 3) - np.power(edges[:-1], 3))
     Nj_density = Nj / chunk_unitcell_volumes.mean()
-
-    # Shinohara's funny norming function doesn't lead to recognisable results...
-    # norm = 4 * np.pi * N_density * N * r**2
 
     # Use normal RDF norming for each timestep
     norm = Nj_density * r_vol * Ni
