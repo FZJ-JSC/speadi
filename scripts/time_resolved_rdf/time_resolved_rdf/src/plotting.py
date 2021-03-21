@@ -3,7 +3,7 @@ import numpy as np
 
 from .multiline import multiline
 
-def plot_grt(r, g_rt, xmax=10.0, t_max=2.0, ymax='peak', title='pair', pair='', save='grt.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
+def plot_grt(r, g_rt, xmax=10.0, t_max=5000.0, ymax='peak', title='pair', pair='', save='grt.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
     if ax is None:
         fig, ax = plt.subplots()
     else:
@@ -11,13 +11,15 @@ def plot_grt(r, g_rt, xmax=10.0, t_max=2.0, ymax='peak', title='pair', pair='', 
 
     c = np.linspace(0, t_max, g_rt.shape[0])
     rs = np.tile(r * 10, (g_rt.shape[0], 1))
-    lc = multiline(rs, g_rt, c, cmap=cmap, ax=ax)
+    lc = multiline(rs, g_rt, c, cmap=cmap, ax=ax, alpha=.05)
     if cbar:
         if 'cax' in dir():
             axcb = plt.colorbar(lc, cax=cax)
         else:
             axcb = plt.colorbar(lc, ax=ax)
         axcb.set_label('t / ps')
+        axcb.set_alpha(1)
+        axcb.draw_all()
 
     if ymax == 'peak':
         ymax = g_rt.max()
@@ -26,7 +28,7 @@ def plot_grt(r, g_rt, xmax=10.0, t_max=2.0, ymax='peak', title='pair', pair='', 
     ax.set_xlim(0.0, xmax)
     ax.xaxis.grid(True, which='minor')
     if ylabel:
-        ax.set_ylabel('G(r,t)')
+        ax.set_ylabel('g(r,t)')
     else:
         ax.set_yticks([])
     if xlabel:
