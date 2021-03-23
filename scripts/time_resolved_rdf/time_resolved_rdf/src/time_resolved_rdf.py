@@ -199,11 +199,8 @@ def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
     g_rt = _histogram(rt_array, edges)
 
     r = 0.5 * (edges[1:] + edges[:-1])
-    r_vol = 4.0/3.0 * np.pi * (np.power(edges[1:], 3) - np.power(edges[:-1], 3))
+    r_vol = 4.0 * np.pi * np.power(edges[1:], 2) * (edges[1:] - edges[:-1])
     Nj_density = Nj / chunk_unitcell_volumes.mean()
-
-    # Shinohara's funny norming function doesn't lead to recognisable results...
-    # norm = 4 * np.pi * N_density * N * r**2
 
     # Use normal RDF norming for each timestep
     norm = Nj_density * r_vol * Ni
