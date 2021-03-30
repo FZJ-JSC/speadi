@@ -14,7 +14,7 @@ set_num_threads(get_num_threads())
 
 def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         n_chunks=100, chunk_size=200, skip=1, stride=10,
-        r_range=(0.0, 2.0), nbins=400):
+        r_range=(0.0, 2.0), nbins=400, raw_counts=False):
     """
     Calculate g(r,t) for two groups given in a trajectory.
     g(r) is calculated for each frame in the trajectory, then averaged over specified chunks
@@ -86,23 +86,22 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
                 chunk = f.read_as_traj(top, n_frames=int(chunk_size / stride), stride=stride)
                 r, g_rts = _append_grts(g_rts, n, chunk.xyz, g1_array, g2_array,
                                         chunk.unitcell_vectors, chunk.unitcell_volumes,
-                                        r_range, nbins, pbc, opt,
+                                        r_range, nbins, pbc, opt, raw_counts,
                                         g1_lens=g1_lens, g2_lens=g2_lens)
 
     else:
         raise TypeError('You must input either the path to a trajectory together with a MDTraj topology instance, or an MDTraj trajectory, or a generator of such.')
 
-    # g_rt = g_rts / chunk_size * stride
     g_rt = g_rts
     return r, g_rt
 
 
 def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol,
-                 r_range, nbins, pbc, opt,
+                 r_range, nbins, pbc, opt, raw_counts,
                  g1_lens=None, g2_lens=None):
     if pbc == 'ortho':
         if opt:
-            g_rts = _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins)
+            g_rts = _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts)
             edges = np.linspace(r_range[0], r_range[1], nbins+1)
             r = 0.5 * (edges[1:] + edges[:-1])
     return r, g_rts
@@ -165,7 +164,7 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
 
 # @njit(['f8[:,:](f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
 @jit
-def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
+def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins, raw_counts):
     """
     Numba jitted and parallelised version of histogram of the time-distance matrix.
 
@@ -198,22 +197,26 @@ def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins):
         # g_rt[t] = _histogram(rt_array[t], edges)
     g_rt = _histogram(rt_array, edges)
 
-    r = 0.5 * (edges[1:] + edges[:-1])
-    r_vol = 4.0 * np.pi * np.power(edges[1:], 2) * (edges[1:] - edges[:-1])
-    Nj_density = Nj / chunk_unitcell_volumes.mean()
+    if raw_counts:
+        # No normalisation w.r.t volume and particle density
+        g_rt = g_rt / Ni / n_frames
+    else:
+        r = 0.5 * (edges[1:] + edges[:-1])
+        r_vol = 4.0 * np.pi * np.power(edges[1:], 2) * (edges[1:] - edges[:-1])
+        Nj_density = Nj / chunk_unitcell_volumes.mean()
 
-    # Use normal RDF norming for each timestep
-    norm = Nj_density * r_vol * Ni
-    g_rt = g_rt / norm / n_frames
+        # Use normal RDF norming for each timestep
+        norm = Nj_density * r_vol * Ni
+        g_rt = g_rt / norm / n_frames
 
     return g_rt
 
 
 # @njit(['f4[:,:,:,:](f4[:,:,:,:],i8,f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
 @jit
-def _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins):
+def _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts):
     for i in prange(g1.shape[0]):
         for j in range(g2.shape[0]):
             rt_array = _compute_rt_mic_numba(xyz, g1[i][:g1_lens[i]], g2[j][:g2_lens[j]], cuvec)
-            g_rts[i,j,n] += _compute_grt_numba(rt_array, cuvol, r_range, nbins)
+            g_rts[i,j,n] += _compute_grt_numba(rt_array, cuvol, r_range, nbins, raw_counts)
     return g_rts
