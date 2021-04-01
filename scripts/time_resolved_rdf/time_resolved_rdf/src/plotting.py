@@ -57,7 +57,7 @@ def plot_map(r, g_rt, xmax=10.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, total
     assert xmax <= total_r, f'x-axis cannot extend beyond the maximum radial bin ({total_r} Å)'
     assert ymax <= total_t, f'y-axis cannot extend beyond the maximum time ({total_t} ps)'
 
-    image = ax.imshow(g_rt[:ymix,:xmix], origin='lower', vmin=vlim[0], vmax=vlim[1], extent=extent, aspect='auto', cmap=cmap)
+    image = ax.imshow(g_rt[:ymix,:xmix], origin='lower', vmin=vlim[0], vmax=vlim[1], extent=extent, aspect='auto', cmap=cmap, interpolation='nearest')
     if cbar:
         if 'cax' in dir():
             axcb = plt.colorbar(image, cax=cax, extend='both')
