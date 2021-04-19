@@ -63,7 +63,7 @@ def plot_map(r, g_rt, xmax=10.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, total
             axcb = plt.colorbar(image, cax=cax, extend='both')
         else:
             axcb = plt.colorbar(image, ax=ax, extend='both')
-        axcb.set_label('G(r,t)')
+        axcb.set_label('g(r,t)')
 
     # ax.set_ylim(0.0, ymax)
     # ax.set_xlim(0.0, xmax)
