@@ -14,7 +14,7 @@ set_num_threads(get_num_threads())
 
 def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         n_chunks=100, chunk_size=200, overlap=False, skip=1, stride=10,
-        r_range=(0.0, 2.0), nbins=400):
+        r_range=(0.0, 2.0), nbins=400, self_part=False):
     """
     Calculate G(r,t) for two groups given in a trajectory.
     G(r,t) is calculated for a smaller time frame (typically 2 ps). G(r,t) is
@@ -89,7 +89,7 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
                 r, g_rts = _append_grts(g_rts, n, chunk.xyz, g1_array, g2_array,
                                         chunk.unitcell_vectors, chunk.unitcell_volumes,
                                         r_range, nbins, pbc, opt,
-                                        g1_lens=g1_lens, g2_lens=g2_lens)
+                                        g1_lens=g1_lens, g2_lens=g2_lens, self_part=self_part)
                 if isinstance(overlap, int) and overlap >= 1:
                     f.seek(-chunk_size + overlap, 1)
 
@@ -122,10 +122,13 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
 
 def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol,
                  r_range, nbins, pbc, opt,
-                 g1_lens=None, g2_lens=None):
+                 g1_lens=None, g2_lens=None, self_part=False):
     if pbc == 'ortho':
         if opt:
-            g_rts = _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins)
+            if self_part:
+                g_rts = _opt_append_grts_self(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins)
+            else:
+                g_rts = _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins)
             edges = np.linspace(r_range[0], r_range[1], nbins+1)
             r = 0.5 * (edges[1:] + edges[:-1])
         else:
@@ -180,10 +183,56 @@ def _compute_rt_mic_numba(chunk, g1, g2, bv):
                     rtd[t][i][j][coord] = rtd[t][i][j][coord] ** 2
                     rt[t][i][j] += rtd[t][i][j][coord]
                 rt[t][i][j] = math.sqrt(rt[t][i][j])
-                rt[t][i][j]
                 # remove self interaction part of G(r,t)
                 if i == j:
                     rt[t][i][j] = 99.0
+
+    return rt
+
+
+@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
+def _compute_rt_mic_numba_self(chunk, g1, g2, bv):
+    """
+    Numba jitted and parallelised version of function to calculate
+    the distance matrix between each atom in group 1 at time zero and
+    each atom in group 2 at each frame supplied. Minimum image convention
+    for orthogonal simulation boxes applied.
+
+    Parameters
+    ----------
+    chunk : slice of mdtraj.trajectory
+        Slice of trajectory or chunk from mdtraj.iterload of time length t_max
+        to calculate G(r,t) over.
+    g1 : numpy.array
+        Numpy array of atom indices representing the group to calculate G(r,t) for.
+    g2 : numpy.array
+        Numpy array of atom indices representing the group to calculate G(r,t) with.
+    bv : numpy.array
+        simulation box vectors (which vary over time) as supplied by
+        mdtraj.trajectory.unitcell_vectors.
+
+    Returns
+    -------
+    rt : numpy.array
+        Numpy array containing the time-distance matrix.
+    """
+    rt0 = chunk[0]
+    r1 = rt0[g1]
+    xyz = chunk[:, g2]
+
+    rt = np.zeros((chunk.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
+    rtd = np.zeros((chunk.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
+
+    frames = chunk.shape[0]
+
+    for t in prange(frames):
+        for i in prange(g1.shape[0]):
+            for coord in range(3):
+                rtd[t][i][i][coord] = r1[i][coord] - xyz[t][i][coord]
+                rtd[t][i][i][coord] -= bv[t][coord][coord] * round(rtd[t][i][i][coord] / bv[t][coord][coord])
+                rtd[t][i][i][coord] = rtd[t][i][i][coord] ** 2
+                rt[t][i][i] += rtd[t][i][i][coord]
+            rt[t][i][i] = math.sqrt(rt[t][i][i])
 
     return rt
 
@@ -301,6 +350,14 @@ def _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_ra
     for i in prange(g1.shape[0]):
         for j in range(g2.shape[0]):
             rt_array = _compute_rt_mic_numba(xyz, g1[i][:g1_lens[i]], g2[j][:g2_lens[j]], cuvec)
+            g_rts[i,j] += _compute_grt_numba(rt_array, cuvol, r_range, nbins)
+    return g_rts
+
+@njit(['f4[:,:,:,:](f4[:,:,:,:],i8,f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
+def _opt_append_grts_self(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins):
+    for i in prange(g1.shape[0]):
+        for j in range(g2.shape[0]):
+            rt_array = _compute_rt_mic_numba_self(xyz, g1[i][:g1_lens[i]], g2[j][:g2_lens[j]], cuvec)
             g_rts[i,j] += _compute_grt_numba(rt_array, cuvol, r_range, nbins)
     return g_rts
 
