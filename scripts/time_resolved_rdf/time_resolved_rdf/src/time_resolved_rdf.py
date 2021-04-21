@@ -1,8 +1,5 @@
 import mdtraj as md
-from mdtraj.utils import ensure_type
-from typing import Generator
-from tqdm import tqdm, trange
-from scipy.spatial.distance import cdist
+from tqdm import trange
 
 import numpy as np
 import math
@@ -11,6 +8,7 @@ from numba import njit, prange, float32, float64, get_num_threads, set_num_threa
 from .histogram import _histogram
 
 set_num_threads(get_num_threads())
+
 
 def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         n_chunks=100, chunk_size=200, skip=1, stride=10,
@@ -104,10 +102,11 @@ def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol,
             g_rts = _opt_append_grts(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts)
             edges = np.linspace(r_range[0], r_range[1], nbins+1)
             r = 0.5 * (edges[1:] + edges[:-1])
-    return r, g_rts
+            return r, g_rts
+    else:
+        raise NotImplementedError('Currently, only orthogonal simulation cells are supported.')
 
 
-# @jit
 @njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
 def _compute_rt_mic_numba(chunk, g1, g2, bv):
     """
@@ -201,11 +200,11 @@ def _compute_grt_numba(rt_array, chunk_unitcell_volumes, r_range, nbins, raw_cou
         # No normalisation w.r.t volume and particle density
         g_rt = g_rt / Ni / n_frames
     else:
-        r = 0.5 * (edges[1:] + edges[:-1])
+        # r = 0.5 * (edges[1:] + edges[:-1])
         r_vol = 4.0 * np.pi * np.power(edges[1:], 2) * (edges[1:] - edges[:-1])
         Nj_density = Nj / chunk_unitcell_volumes.mean()
 
-        # Use normal RDF norming for each timestep
+        # Use normal RDF norming for each time step
         norm = Nj_density * r_vol * Ni
         g_rt = g_rt / norm / n_frames
 
