@@ -1,8 +1,15 @@
 #+title: Time-resolved RDF.py
 #+author: Emile de Bruyn
-#+export_file_name: README.md
+#+export_file_name: ../README.md
 
 * Time-resolved RDF.py
+  This package provides an optimised function to calculate Time-resolved Radial Distribution Functions using atomistic simulation trajectory data.
+
+  Trajectory data may be anything that the package ~MDTraj~ can handle, or preferably a string pointing to the location of such data.
+ 
+** Explanation 
+   [[file:docs/trrdf_averaging.svg]]
+  
 ** Install
    Installation is provided easily through ~pip~. It can be installed either directly as a package, or as an editable source.
   
@@ -26,3 +33,9 @@
 		 cd emiles-phd-project/scripts/time_resolved_rdf/ && pip install -e .
     #+end_src
 
+** [WIP] Citation
+   
+** Contributors
+   - Emile de Bruyn
+
+** [WIP] License
