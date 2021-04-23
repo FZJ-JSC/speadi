@@ -4,6 +4,9 @@ import numpy as np
 from .multiline import multiline
 
 def plot_grt(r, g_rt, xmax=10.0, t_max=5000.0, ymax='peak', title='pair', pair='', save='grt.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
+    """
+    Plots a 1D RDF for each time supplied (first dimension of g_rt[target,species] i.e. g_rt[0,1])
+    """
     if ax is None:
         fig, ax = plt.subplots()
     else:
@@ -45,6 +48,9 @@ def plot_grt(r, g_rt, xmax=10.0, t_max=5000.0, ymax='peak', title='pair', pair='
 
 
 def plot_map(r, g_rt, xmax=10.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, total_r=20.0, title='pair', save='map.pdf', pair='', cmap='viridis', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
+    """
+    Plots a 2D RDF with times on the y-axis and x-axis displaying the radius r
+    """
     if ax is None:
         fig, ax = plt.subplots()
     else:
@@ -86,6 +92,9 @@ def plot_map(r, g_rt, xmax=10.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, total
 
 
 def plot_both(r, g_rt, xmax=2.0, ymax=2.0, vlim=(0.90, 1.10), total_t=2.0, save='both.pdf', pair='', cmap='viridis'):
+    """
+    Helper function to plot a grid with both 1D RDFs and 2D maps
+    """
     _, ax1 = plot_grt(r, g_rt, xmax=xmax, ymax='peak', save=False, pair=None, cmap=cmap)
     _, ax2 = plot_map(r, g_rt, xmax=xmax, ymax=ymax, vlim=(0.90, 1.10),
                       total_t=2.0, save=False, pair=None, cmap=cmap)
