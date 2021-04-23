@@ -3,9 +3,12 @@
   - [Install](#sec-1-2)
     - [Direct installation](#sec-1-2-1)
     - [Editable source installation](#sec-1-2-2)
-  - [[WIP] Citation](#sec-1-3)
-  - [Contributors](#sec-1-4)
-  - [[WIP] License](#sec-1-5)
+  - [[WIP] Usage](#sec-1-3)
+    - [To-do](#sec-1-3-1)
+  - [[WIP] Citation](#sec-1-4)
+  - [Contributors](#sec-1-5)
+  - [[WIP] License](#sec-1-6)
+    - [To-dos](#sec-1-6-1)
 
 
 # Time-resolved RDF.py<a id="sec-1"></a>
@@ -16,7 +19,13 @@ Trajectory data may be anything that the package `MDTraj` can handle, or prefera
 
 ## Explanation<a id="sec-1-1"></a>
 
-![img](docs/trrdf_averaging.svg)
+Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories.
+
+<img src="docs/rdf_averaging.svg" width="850px">
+
+`Time-resolved RDF.py` averages over user-defined chunks of time. This gives a separate RDF between group *a* and *b* for each chunk in the trajectory.
+
+<img src="docs/trrdf_averaging.svg" width="850px">
 
 ## Install<a id="sec-1-2"></a>
 
@@ -50,10 +59,61 @@ Then, install locally using `pip` (after entering the package sub-directory):
 cd emiles-phd-project/scripts/time_resolved_rdf/ && pip install -e .
 ```
 
-## [WIP] Citation<a id="sec-1-3"></a>
+## [WIP] Usage<a id="sec-1-3"></a>
 
-## Contributors<a id="sec-1-4"></a>
+To calculate the time-resolved RDF for every single protein heavy atom with each ion species in solvent, you first need to specify the trajectory and topology to be used:
+
+```python
+topology = './topology.gro'
+trajectory = './trajectory.xtc'
+```
+
+Next, load the topology in `MDTraj` and subset into useful groups:
+
+```python
+import mdtraj as md
+
+top = md.load_topology(topology)
+na = top.select('name NA')
+cl = top.select('name CL')
+protein_by_atom = [top.select(f'index {ix}') for ix in top.select('protein and not type H')]
+```
+
+Now you can load `time-resolved RDF` to analyse the RDFs:
+
+```python
+from time_resolved_rdf import grt, plot_grt, plot_map
+```
+
+To make an RDF for each heavy protein atom
+
+```python
+r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+              skip=0, opt=True, pbc='ortho', stride=1, nbins=10)
+```
+
+To repeat the analysis, but obtain un-normed raw histograms of distances instead, set the key `raw_counts` to `True`.
+
+```python
+r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+              skip=0, opt=True, pbc='ortho', stride=1, nbins=10, raw_counts=True)
+```
+
+### To-do<a id="sec-1-3-1"></a>
+
+-   add examples of the plotting function in action
+
+## [WIP] Citation<a id="sec-1-4"></a>
+
+Add Zenodo link as soon as a first public release is planned to coincide with open-sourcing.
+
+## Contributors<a id="sec-1-5"></a>
 
 -   Emile de Bruyn
 
-## [WIP] License<a id="sec-1-5"></a>
+## [WIP] License<a id="sec-1-6"></a>
+
+### To-dos<a id="sec-1-6-1"></a>
+
+-   add LGPL license
+-   check with colleagues and legal department before publication
