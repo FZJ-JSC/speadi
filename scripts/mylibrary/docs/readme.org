@@ -1,0 +1,84 @@
+#+title: Time-resolved RDF.py
+#+author: Emile de Bruyn
+#+export_file_name: ../README.md
+
+* Time-resolved RDF.py
+  This package provides an optimised function to calculate Time-resolved Radial Distribution Functions using atomistic simulation trajectory data.
+
+  Trajectory data may be anything that the package ~MDTraj~ can handle, or preferably a string pointing to the location of such data.
+ 
+** Explanation
+   Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories.
+   
+   #+html: <img src="docs/rdf_averaging.svg" width="850px">
+   
+   ~Time-resolved RDF.py~ averages over user-defined chunks of time. This gives a separate RDF between group /a/ and /b/ for each chunk in the trajectory.
+   
+   #+html: <img src="docs/trrdf_averaging.svg" width="850px">
+  
+** Install
+   Installation is provided easily through ~pip~. It can be installed either directly as a package, or as an editable source.
+  
+*** Direct installation
+    For installation into the default python environment, run the following in a terminal:
+    #+begin_src bash
+		 pip install git+https://gitlab.version.fz-juelich.de/debruyn1/emiles-phd-project.git#egg=version_subpkg\&subdirectory=scripts/vanhove
+    #+end_src
+    To install for just the current user, add the ~--user~ option:
+    #+begin_src bash
+		 pip install --user git+https://gitlab.version.fz-juelich.de/debruyn1/emiles-phd-project.git#egg=version_subpkg\&subdirectory=scripts/vanhove
+    #+end_src
+
+*** Editable source installation
+    Open up a terminal. Navigate to the location you want to clone this repository. Then, run the following to clone the whole repository:
+    #+begin_src bash
+		 git clone ssh://git@gitlab.version.fz-juelich.de:10022/debruyn1/emiles-phd-project.git
+    #+end_src
+    Then, install locally using ~pip~ (after entering the package sub-directory):
+	  #+begin_src bash
+		 cd emiles-phd-project/scripts/mylibrary/ && pip install -e .
+    #+end_src
+
+** [WIP] Usage
+   To calculate the time-resolved RDF for every single protein heavy atom with each ion species in solvent, you first need to specify the trajectory and topology to be used:
+   #+begin_src python
+     topology = './topology.gro'
+     trajectory = './trajectory.xtc'
+   #+end_src 
+   Next, load the topology in ~MDTraj~ and subset into useful groups:
+   #+begin_src python
+     import mdtraj as md
+
+     top = md.load_topology(topology)
+     na = top.select('name NA')
+     cl = top.select('name CL')
+     protein_by_atom = [top.select(f'index {ix}') for ix in top.select('protein and not type H')]
+   #+end_src
+   Now you can load ~time-resolved RDF~ to analyse the RDFs:
+   #+begin_src python
+     from mylibrary import grt, plot_grt, plot_map
+   #+end_src
+   To make an RDF for each heavy protein atom 
+   #+begin_src python
+     r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+                   skip=0, opt=True, pbc='ortho', stride=1, nbins=10)
+   #+end_src
+   To repeat the analysis, but obtain un-normed raw histograms of distances instead, set the key ~raw_counts~ to ~True~.
+   #+begin_src python
+     r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+                   skip=0, opt=True, pbc='ortho', stride=1, nbins=10, raw_counts=True)
+   #+end_src
+
+*** To-do
+    - add examples of the plotting function in action
+   
+** [WIP] Citation
+   Add Zenodo link as soon as a first public release is planned to coincide with open-sourcing.
+   
+** Contributors
+   - Emile de Bruyn
+
+** [WIP] License
+*** To-dos
+    - add LGPL license
+    - check with colleagues and legal department before publication
