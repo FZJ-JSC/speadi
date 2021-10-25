@@ -16,7 +16,7 @@ from numba import get_num_threads
 
 from .src.patches import get_patches
 from .src.plotting import plot_grt, plot_map
-from .src.time_resolved_rdf import grt
+from .src.time_resolved_rdf.grt import grt
 from .src.vanhove.Grt import Grt
 
 print(f'\nNumba currently using {get_num_threads()} threads with shared memory! Reduce this number by passing \"numba.set_num_threads(x)\" with an apropriate integer value.\n')
