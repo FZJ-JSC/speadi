@@ -10,7 +10,7 @@ try:
 except ModuleNotFoundError:
     from importlib_metadata import version as get_pkg_version
 
-__version__ = get_pkg_version('mylibrary')
+__version__ = get_pkg_version('MDEnvironment')
 
 from numba import get_num_threads
 

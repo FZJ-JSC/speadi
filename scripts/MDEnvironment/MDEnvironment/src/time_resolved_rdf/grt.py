@@ -75,7 +75,6 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
         g2_lens = np.array([len(x) for x in g2], dtype=np.int64)
         g1_array = np.zeros((len(g1), g1_lens.max()), dtype=np.int64)
         g2_array = np.zeros((len(g2), g2_lens.max()), dtype=np.int64)
-        # g1_array[:, :], g2_array[:, :] = np.nan, np.nan
         for i in range(g1_array.shape[0]):
             g1_array[i, :len(g1[i])] = g1[i]
         for i in range(g2_array.shape[0]):
@@ -95,4 +94,3 @@ def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
 
     g_rt = g_rts
     return r, g_rt
-

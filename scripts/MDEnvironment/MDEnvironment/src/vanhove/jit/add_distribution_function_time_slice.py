@@ -1,7 +1,7 @@
 from numba import njit, prange
 
-from mylibrary.src.vanhove.jit.histogram_distances import _compute_Grt
-from mylibrary.src.vanhove.jit.time_distance_matrix import _compute_rt_mic, _compute_rt_mic_self
+from MDEnvironment.src.vanhove.jit.histogram_distances import _compute_Grt
+from MDEnvironment.src.vanhove.jit.time_distance_matrix import _compute_rt_mic, _compute_rt_mic_self
 
 
 @njit(['f4[:,:,:,:](f4[:,:,:,:],f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)

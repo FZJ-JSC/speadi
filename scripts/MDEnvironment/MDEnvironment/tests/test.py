@@ -2,8 +2,8 @@ import mdtraj as md
 import numpy as np
 import matplotlib.pyplot as plt
 
-from mylibrary import Grt
-from mylibrary import plot_grt, plot_map
+from MDEnvironment import Grt
+from MDEnvironment import plot_grt, plot_map
 
 
 def prepare(iterator=True, single=False):
