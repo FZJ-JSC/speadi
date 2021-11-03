@@ -4,15 +4,17 @@ G(r,t) between two groups of particles. Groups can also consist of single
 particles.
 """
 
-from numba import (get_num_threads, set_num_threads)
-
 from .tools.construct_arrays import _construct_results_array
 from .tools.calculate_according_to_inputs import _calculate_according_to_inputs
+from ..common_tools.check_numba import check_numba
 
-# Tell numba how many threads are set available
-set_num_threads(get_num_threads())
+NUMBA_AVAILABLE = check_numba()
+if NUMBA_AVAILABLE:
+    from numba import (get_num_threads, set_num_threads)
+    set_num_threads(get_num_threads())
 
-def Grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
+
+def Grt(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE,
         n_windows=100, window_size=200, overlap=False, skip=1, stride=10,
         r_range=(0.0, 2.0), nbins=400, self_part=False):
     """

@@ -6,17 +6,19 @@ Groups can also consist of single particles.
 
 import mdtraj as md
 import numpy as np
-from numba import (get_num_threads, set_num_threads)
 from tqdm import trange
 
 from .tools.append_results import _append_grts
 from .tools.construct_arrays import _construct_results_array
+from ..common_tools.check_numba import check_numba
 
-set_num_threads(get_num_threads())
+NUMBA_AVAILABLE = check_numba()
+if NUMBA_AVAILABLE:
+    from numba import (get_num_threads, set_num_threads)
+    set_num_threads(get_num_threads())
 
 
-def grt(traj, g1, g2, top=None, pbc='ortho', opt=True,
-        n_windows=100, window_size=200, skip=1, stride=10,
+def grt(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE, n_windows=100, window_size=200, skip=1, stride=10,
         r_range=(0.0, 2.0), nbins=400, raw_counts=False):
     """
     Calculate g(r,t) for two groups given in a trajectory. g(r) is

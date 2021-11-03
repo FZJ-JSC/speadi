@@ -12,7 +12,14 @@ except ModuleNotFoundError:
 
 __version__ = get_pkg_version('MDEnvironment')
 
-from numba import get_num_threads
+try:
+    from numba import __version__ as __numba_version__
+    from numba import get_num_threads
+    print('Numba version ', __numba_version__, ' detected. MDEnvironment will default to optimization using Numba.')
+    print(f'\nNumba currently using {get_num_threads()} threads with shared memory! Reduce this number by passing '
+          f'\"numba.set_num_threads(x)\" with an appropriate integer value.\n')
+except ImportError:
+    print('Numba not detected in the current Python environment. Defaulting to numpy vectorization.')
 
 from .src.patches import get_patches
 from .src.time_resolved_rdf.tools.plotting import plot_grt, plot_map
@@ -20,4 +27,4 @@ from .src.vanhove.tools.plotting import plot_Grt, plot_dual_Grt
 from .src.time_resolved_rdf.grt import grt
 from .src.vanhove.Grt import Grt
 
-print(f'\nNumba currently using {get_num_threads()} threads with shared memory! Reduce this number by passing \"numba.set_num_threads(x)\" with an apropriate integer value.\n')
+
