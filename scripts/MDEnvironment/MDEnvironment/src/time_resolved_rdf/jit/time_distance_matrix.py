@@ -30,13 +30,11 @@ def _compute_rt_mic_numba(window, g1, g2, bv):
     rt : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    # rt0 = window[0]
-    # r1 = rt0[g1]
     r1 = window[:, g1]
     xyz = window[:, g2]
 
-    rt = np.empty((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
-    rtd = np.empty((window.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
+    rt = np.zeros((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
+    rtd = np.zeros((window.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
 
     frames = window.shape[0]
 

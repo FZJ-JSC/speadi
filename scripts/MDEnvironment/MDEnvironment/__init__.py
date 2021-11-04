@@ -26,5 +26,3 @@ from .src.time_resolved_rdf.tools.plotting import plot_grt, plot_map
 from .src.vanhove.tools.plotting import plot_Grt, plot_dual_Grt
 from .src.time_resolved_rdf.grt import grt
 from .src.vanhove.Grt import Grt
-
-
