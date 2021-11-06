@@ -8,13 +8,9 @@
   Trajectory data may be anything that the package ~MDTraj~ can handle, or preferably a string pointing to the location of such data.
  
 ** Explanation
-   Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories.
+   Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories. ~Time-resolved RDF.py~ averages over user-defined windows of time. This gives a separate RDF between group /a/ and /b/ for each window in the trajectory.
    
-   #+html: <img src="docs/rdf_averaging.svg" width="850px">
-   
-   ~Time-resolved RDF.py~ averages over user-defined chunks of time. This gives a separate RDF between group /a/ and /b/ for each chunk in the trajectory.
-   
-   #+html: <img src="docs/trrdf_averaging.svg" width="850px">
+   #+html: <img src="docs/trrdf.svg" width="850px">
   
 ** Install
    Installation is provided easily through ~pip~. It can be installed either directly as a package, or as an editable source.
@@ -60,12 +56,12 @@
    #+end_src
    To make an RDF for each heavy protein atom 
    #+begin_src python
-     r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+     r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
                    skip=0, opt=True, pbc='ortho', stride=1, nbins=10)
    #+end_src
    To repeat the analysis, but obtain un-normed raw histograms of distances instead, set the key ~raw_counts~ to ~True~.
    #+begin_src python
-     r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+     r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
                    skip=0, opt=True, pbc='ortho', stride=1, nbins=10, raw_counts=True)
    #+end_src
 

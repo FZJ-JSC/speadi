@@ -19,13 +19,9 @@ Trajectory data may be anything that the package `MDTraj` can handle, or prefera
 
 ## Explanation<a id="sec-1-1"></a>
 
-Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories.
+Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories. `Time-resolved RDF.py` averages over user-defined windows of time. This gives a separate RDF between group *a* and *b* for each window in the trajectory.
 
-<img src="docs/rdf_averaging.svg" width="850px">
-
-`Time-resolved RDF.py` averages over user-defined chunks of time. This gives a separate RDF between group *a* and *b* for each chunk in the trajectory.
-
-<img src="docs/trrdf_averaging.svg" width="850px">
+<img src="docs/trrdf.svg" width="850px">
 
 ## Install<a id="sec-1-2"></a>
 
@@ -56,7 +52,7 @@ git clone ssh://git@gitlab.version.fz-juelich.de:10022/debruyn1/emiles-phd-proje
 Then, install locally using `pip` (after entering the package sub-directory):
 
 ```bash
-cd emiles-phd-project/scripts/time_resolved_rdf/ && pip install -e .
+cd emiles-phd-project/scripts/mylibrary/ && pip install -e .
 ```
 
 ## [WIP] Usage<a id="sec-1-3"></a>
@@ -82,20 +78,20 @@ protein_by_atom = [top.select(f'index {ix}') for ix in top.select('protein and n
 Now you can load `time-resolved RDF` to analyse the RDFs:
 
 ```python
-from time_resolved_rdf import grt, plot_grt, plot_map
+from mylibrary import grt, plot_grt, plot_map
 ```
 
 To make an RDF for each heavy protein atom
 
 ```python
-r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
               skip=0, opt=True, pbc='ortho', stride=1, nbins=10)
 ```
 
 To repeat the analysis, but obtain un-normed raw histograms of distances instead, set the key `raw_counts` to `True`.
 
 ```python
-r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_chunks=4_500, chunk_size=100,\
+r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
               skip=0, opt=True, pbc='ortho', stride=1, nbins=10, raw_counts=True)
 ```
 
