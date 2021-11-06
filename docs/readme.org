@@ -1,39 +1,31 @@
-#+title: Time-resolved RDF.py
+#+title: MDEnvironment
 #+author: Emile de Bruyn
 #+export_file_name: ../README.md
 
-* Time-resolved RDF.py
-  This package provides an optimised function to calculate Time-resolved Radial Distribution Functions using atomistic simulation trajectory data.
+* Introduction
 
-  Trajectory data may be anything that the package ~MDTraj~ can handle, or preferably a string pointing to the location of such data.
- 
-** Explanation
-   Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories. ~Time-resolved RDF.py~ averages over user-defined windows of time. This gives a separate RDF between group /a/ and /b/ for each window in the trajectory.
-   
-   #+html: <img src="docs/trrdf.svg" width="850px">
+* Installation
+  Installation is provided easily through ~pip~. It can be installed either directly as a package, or as an editable source.
   
-** Install
-   Installation is provided easily through ~pip~. It can be installed either directly as a package, or as an editable source.
-  
-*** Direct installation
-    For installation into the default python environment, run the following in a terminal:
-    #+begin_src bash
-		 pip install git+https://gitlab.version.fz-juelich.de/debruyn1/emiles-phd-project.git#egg=version_subpkg\&subdirectory=scripts/vanhove
-    #+end_src
-    To install for just the current user, add the ~--user~ option:
-    #+begin_src bash
-		 pip install --user git+https://gitlab.version.fz-juelich.de/debruyn1/emiles-phd-project.git#egg=version_subpkg\&subdirectory=scripts/vanhove
-    #+end_src
+** Direct installation
+   For installation into the default python environment, run the following in a terminal:
+   #+begin_src bash
+		pip install git+https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment
+   #+end_src
+   To install for just the current user, add the ~--user~ option:
+   #+begin_src bash
+		pip install --user git+https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment
+   #+end_src
 
-*** Editable source installation
-    Open up a terminal. Navigate to the location you want to clone this repository. Then, run the following to clone the whole repository:
-    #+begin_src bash
-		 git clone ssh://git@gitlab.version.fz-juelich.de:10022/debruyn1/emiles-phd-project.git
-    #+end_src
-    Then, install locally using ~pip~ (after entering the package sub-directory):
-	  #+begin_src bash
-		 cd emiles-phd-project/scripts/mylibrary/ && pip install -e .
-    #+end_src
+** Editable source installation
+   Open up a terminal. Navigate to the location you want to clone this repository. Then, run the following to clone the whole repository:
+   #+begin_src bash
+		git clone ssh://git@gitlab.jsc.fz-juelich.de:10022/debruyn1/mdenvironment
+   #+end_src
+   Then, install locally using ~pip~ (after entering the package sub-directory):
+	 #+begin_src bash
+		cd mdenvironment/ && pip install -e .
+   #+end_src
 
 ** [WIP] Usage
    To calculate the time-resolved RDF for every single protein heavy atom with each ion species in solvent, you first need to specify the trajectory and topology to be used:
@@ -78,3 +70,14 @@
 *** To-dos
     - add LGPL license
     - check with colleagues and legal department before publication
+* Van Hove functions
+* Time-resolved RDFs
+  This package provides an optimised function to calculate Time-resolved Radial Distribution Functions using atomistic simulation trajectory data.
+
+  Trajectory data may be anything that the package ~MDTraj~ can handle, or preferably a string pointing to the location of such data.
+ 
+** Explanation
+   Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories. ~MDEnvironment~ averages over user-defined windows of time. This gives a separate RDF between group /a/ and /b/ for each window in the trajectory.
+   
+   #+html: <img src="docs/trrdf.svg" width="850px">
+  
