@@ -3,7 +3,25 @@
 #+export_file_name: ../README.md
 
 * Introduction
+  
+* Quickstart
+  For installation into the default python environment, run the following in a terminal:
+   #+begin_src bash
+		pip install --user git+https://pip_token:F4ZJGgGyyb62dP34xMqo@gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment.git
+   #+end_src
 
+* Time-resolved RDFs
+  This package provides an optimised function to calculate Time-resolved Radial Distribution Functions using atomistic simulation trajectory data.
+
+  Trajectory data may be anything that the package ~MDTraj~ can handle, or preferably a string pointing to the location of such data.
+ 
+** Explanation
+   Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories. ~MDEnvironment~ averages over user-defined windows of time. This gives a separate RDF between group /a/ and /b/ for each window in the trajectory.
+   
+   #+html: <img src="docs/trrdf.svg" width="850px">
+  
+* Van Hove functions
+  
 * Installation
   Installation is provided easily through ~pip~. It can be installed either directly as a package, or as an editable source.
   
@@ -70,14 +88,3 @@
 *** To-dos
     - add LGPL license
     - check with colleagues and legal department before publication
-* Van Hove functions
-* Time-resolved RDFs
-  This package provides an optimised function to calculate Time-resolved Radial Distribution Functions using atomistic simulation trajectory data.
-
-  Trajectory data may be anything that the package ~MDTraj~ can handle, or preferably a string pointing to the location of such data.
- 
-** Explanation
-   Normally, Radial Distribution Functions used in atomistic simulations are averaged over whole trajectories. ~MDEnvironment~ averages over user-defined windows of time. This gives a separate RDF between group /a/ and /b/ for each window in the trajectory.
-   
-   #+html: <img src="docs/trrdf.svg" width="850px">
-  

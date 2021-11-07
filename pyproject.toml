@@ -1,3 +1,3 @@
 [build-system]
-requires = ["setuptools", "wheel", "Cython", "numpy", "xarray", "matplotlib"]
+requires = ["setuptools", "wheel", "numpy", "mdtraj", "matplotlib"]
 build-backend = "setuptools.build_meta"
