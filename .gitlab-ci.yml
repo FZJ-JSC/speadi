@@ -1,0 +1,32 @@
+image: python:3.7
+
+cache:
+  paths:
+    - .cache/pip
+    - venv/
+
+before_script:
+  - python -V  # Print out python version for debugging
+  - pip install virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+  - pip install -e '.[opt]'
+  - pip install flake8 pytest
+
+stages:
+  - Static Analysis
+  - Test
+
+flake8:
+  stage: Static Analysis
+  tags:
+  - public-docker
+  script:
+    - flake8 --max-line-length=120 *.py
+
+pytest:
+  stage: Test
+  tags:
+  - public-docker
+  script:
+    - pytest
