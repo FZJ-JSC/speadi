@@ -2,6 +2,8 @@
 #+author: Emile de Bruyn
 #+export_file_name: ../README.md
 
+#+html: <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/coverage.svg" /></a> 
+
 * Introduction
   
 * Quickstart

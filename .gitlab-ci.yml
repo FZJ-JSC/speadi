@@ -11,21 +11,20 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
   - pip install -e '.[opt]'
-  - pip install pytest
+  - pip install pytest pytest-cov
 
 stages:
   - Test
 
-test_grt:
+pytest:
   stage: Test
   tags:
   - public-docker
   script:
-    - pytest tests/test_grt.py
-
-test_Grt:
-  stage: Test
-  tags:
-  - public-docker
-  script:
-    - pytest tests/test_Grt.py
+    - coverage run -m pytest
+    - coverage report
+    - coverage xml
+  coverage: '/^TOTAL.+?(\d+\%)$/'
+  artifacts:
+    reports:
+      cobertura: coverage.xml
