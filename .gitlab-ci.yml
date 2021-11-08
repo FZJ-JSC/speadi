@@ -11,22 +11,21 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
   - pip install -e '.[opt]'
-  - pip install flake8 pytest
+  - pip install pytest
 
 stages:
-  - Static Analysis
   - Test
 
-flake8:
-  stage: Static Analysis
-  tags:
-  - public-docker
-  script:
-    - flake8 --max-line-length=120 *.py
-
-pytest:
+test_grt:
   stage: Test
   tags:
   - public-docker
   script:
-    - pytest
+    - pytest tests/test_grt.py
+
+test_Grt:
+  stage: Test
+  tags:
+  - public-docker
+  script:
+    - pytest tests/test_Grt.py
