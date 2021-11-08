@@ -1,1 +1,4 @@
 *.svg filter=lfs diff=lfs merge=lfs -text
+*.gro filter=lfs diff=lfs merge=lfs -text
+*.xtc filter=lfs diff=lfs merge=lfs -text
+*.pdb filter=lfs diff=lfs merge=lfs -text
