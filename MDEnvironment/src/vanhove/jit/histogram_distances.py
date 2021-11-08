@@ -4,7 +4,7 @@ from numba import njit, float64, prange
 from MDEnvironment.src.histogram import _histogram
 
 
-@njit(['f8[:,:](f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True)
+@njit(['f8[:,:](f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], parallel=True, fastmath=True, nogil=True, cache=True)
 def _compute_Grt(rt_array, window_unitcell_volumes, r_range, nbins):
     """
     Numba jitted and parallelised version of histogram of the time-distance

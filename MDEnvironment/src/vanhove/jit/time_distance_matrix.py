@@ -4,7 +4,7 @@ import numpy as np
 from numba import njit, float32, prange
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
+@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
 def _compute_rt_general_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -60,7 +60,7 @@ def _compute_rt_general_mic(window, g1, g2, bv):
     return rt
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
+@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
 def _compute_rt_ortho_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -116,7 +116,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     return rt
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True)
+@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
 def _compute_rt_mic_self(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate

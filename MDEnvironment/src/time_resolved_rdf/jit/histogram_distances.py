@@ -4,7 +4,7 @@ from numba import jit, float64
 from ...histogram import _histogram
 
 
-@jit
+@jit(cache=True)
 def _compute_grt_numba(rt_array, window_unitcell_volumes, r_range, nbins, raw_counts):
     """
     Numba jitted and parallelised version of histogram of the time-distance matrix.
