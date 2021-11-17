@@ -1,0 +1,135 @@
+# This file was created Mon Nov  8 08:45:53 2021
+# Created by:
+#                 :-) GROMACS - gmx vanhove, 2021.3-MODIFIED (-:
+# 
+# Executable:   /usr/local/gromacs/gromacs-plumed/bin/gmx_plumed
+# Data prefix:  /usr/local/gromacs/gromacs-plumed
+# Working dir:  /home/emile/ownCloud/darbeit/MDEnvironment/MDEnvironment/tests/data
+# Command line:
+#   gmx_plumed vanhove -f nacl_box -s nacl_box -or -nr 100 -om -b 0 -e 2 -dt 0.02 -ot -rt .1
+# gmx vanhove is part of G R O M A C S:
+#
+# God Rules Over Mankind, Animals, Cosmos and Such
+#
+@    title "Van Hove function"
+@    xaxis  label "r (nm)"
+@    yaxis  label "G (nm\S-1\N)"
+@TYPE xy
+@ subtitle "for particles in group System"
+@ view 0.15, 0.15, 0.75, 0.85
+@ legend on
+@ legend box on
+@ legend loctype view
+@ legend 0.78, 0.8
+@ legend length 2
+@ s0 legend "0 ps"
+@ s1 legend "0 ps"
+@ s2 legend "0 ps"
+@ s3 legend "0 ps"
+@ s4 legend "0 ps"
+@ s5 legend "0 ps"
+@ s6 legend "0 ps"
+@ s7 legend "0 ps"
+@ s8 legend "0 ps"
+@ s9 legend "0 ps"
+@ s10 legend "0 ps"
+@ s11 legend "0 ps"
+@ s12 legend "0 ps"
+@ s13 legend "0 ps"
+@ s14 legend "0 ps"
+@ s15 legend "0 ps"
+@ s16 legend "0 ps"
+@ s17 legend "0 ps"
+@ s18 legend "0 ps"
+@ s19 legend "0 ps"
+@ s20 legend "0 ps"
+@ s21 legend "0 ps"
+@ s22 legend "0 ps"
+@ s23 legend "0 ps"
+@ s24 legend "0 ps"
+@ s25 legend "0 ps"
+@ s26 legend "0 ps"
+@ s27 legend "0 ps"
+@ s28 legend "0 ps"
+@ s29 legend "0 ps"
+@ s30 legend "0 ps"
+@ s31 legend "0 ps"
+@ s32 legend "0 ps"
+@ s33 legend "0 ps"
+@ s34 legend "0 ps"
+@ s35 legend "0 ps"
+@ s36 legend "0 ps"
+@ s37 legend "0 ps"
+@ s38 legend "0 ps"
+@ s39 legend "0 ps"
+@ s40 legend "0 ps"
+@ s41 legend "0 ps"
+@ s42 legend "0 ps"
+@ s43 legend "0 ps"
+@ s44 legend "0 ps"
+@ s45 legend "0 ps"
+@ s46 legend "0 ps"
+@ s47 legend "0 ps"
+@ s48 legend "0 ps"
+@ s49 legend "0 ps"
+@ s50 legend "0 ps"
+@ s51 legend "0 ps"
+@ s52 legend "0 ps"
+@ s53 legend "0 ps"
+@ s54 legend "0 ps"
+@ s55 legend "0 ps"
+@ s56 legend "0 ps"
+@ s57 legend "0 ps"
+@ s58 legend "0 ps"
+@ s59 legend "0 ps"
+@ s60 legend "0 ps"
+@ s61 legend "0 ps"
+@ s62 legend "0 ps"
+@ s63 legend "0 ps"
+@ s64 legend "0 ps"
+@ s65 legend "0 ps"
+@ s66 legend "0 ps"
+@ s67 legend "0 ps"
+@ s68 legend "0 ps"
+@ s69 legend "0 ps"
+@ s70 legend "0 ps"
+@ s71 legend "0 ps"
+@ s72 legend "0 ps"
+@ s73 legend "0 ps"
+@ s74 legend "0 ps"
+@ s75 legend "0 ps"
+@ s76 legend "0 ps"
+@ s77 legend "0 ps"
+@ s78 legend "0 ps"
+@ s79 legend "0 ps"
+@ s80 legend "0 ps"
+@ s81 legend "0 ps"
+@ s82 legend "0 ps"
+@ s83 legend "0 ps"
+@ s84 legend "0 ps"
+@ s85 legend "0 ps"
+@ s86 legend "0 ps"
+@ s87 legend "0 ps"
+@ s88 legend "0 ps"
+@ s89 legend "0 ps"
+@ s90 legend "0 ps"
+@ s91 legend "0 ps"
+@ s92 legend "0 ps"
+@ s93 legend "0 ps"
+@ s94 legend "0 ps"
+@ s95 legend "0 ps"
+@ s96 legend "0 ps"
+@ s97 legend "0 ps"
+@ s98 legend "0 ps"
+@ s99 legend "0 ps"
+0 199.997 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200 200
+0.01 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.02 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.03 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.04 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.05 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.06 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.07 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.08 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.09 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+0.1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
