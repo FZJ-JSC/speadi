@@ -1,8 +1,8 @@
 """
-This package provides facilities to calculate the dynamic correlation function
-G(r,t), also known as the van-Hove-function, by taking MDTraj trajectory
-objects together with MDTraj groups as input, and returning an array containing
-the function values at various times from t=0.
+This package provides the ability to both calculate time-resolved RDFs for single or groups of particles/atoms, as well
+as the dynamic correlation function G(r,t), also known as the van Hove function. These functions take MDTraj trajectory
+objects together with MDTraj groups as input, and return N*t*r-dimensional arrays containing the function values for N
+reference groups at times t for distances of r.
 """
 
 try:
@@ -21,8 +21,8 @@ try:
 except ImportError:
     print('Numba not detected in the current Python environment. Defaulting to numpy vectorization.')
 
-from .src.patches import get_patches
-from .src.time_resolved_rdf.tools.plotting import plot_grt, plot_map
-from .src.vanhove.tools.plotting import plot_Grt, plot_dual_Grt
-from .src.time_resolved_rdf.grt import grt
-from .src.vanhove.Grt import Grt
+from .patches import get_patches
+from .time_resolved_rdf.tools.plotting import plot_grt, plot_map
+from .vanhove.tools.plotting import plot_Grt, plot_dual_Grt
+from .time_resolved_rdf.grt import grt
+from .vanhove.Grt import Grt
