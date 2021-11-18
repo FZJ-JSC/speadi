@@ -11,7 +11,7 @@ before_script:
   - virtualenv venv
   - source venv/bin/activate
   - pip install -e '.[opt]'
-  - pip install pytest pytest-cov GromacsWrapper
+  - pip install pytest pytest-cov
 
 stages:
   - Test

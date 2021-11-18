@@ -5,7 +5,6 @@ set_num_threads(2)
 import mdenvironment as mde
 import numpy as np
 import pytest
-from gromacs.formats import XVG
 
 
 @pytest.fixture(scope='session')
@@ -31,9 +30,9 @@ def nacl_traj(paths, nacl_top):
 
 @pytest.fixture(scope='session')
 def gmx_rdf(paths):
-    gmx_rdf = XVG(paths['gmx_rdf']).to_df()
-    gmx_rdf['r (nm)'] += 0.005  # Add half a bin width; GROMACS lists bins by starting radius, not bin centre.
-    return gmx_rdf
+    gmx_r, gmx_gr = np.loadtxt(paths['gmx_rdf'], comments=['#', '@'], unpack=True)
+    gmx_r += 0.005
+    return gmx_r, gmx_gr
 
 
 @pytest.fixture(scope='session')
