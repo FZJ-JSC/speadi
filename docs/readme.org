@@ -6,15 +6,14 @@
 <h1 class="title">
 MDEnvironment
 <br />
-<span class="subtitle">
-A Python package that aims to characterise the dynamics of local chemical environments from Molecular Dynamics trajectories of proteins and other biomolecules.
-</span>
 </h1>
+
+A Python package that aims to characterise the dynamics of local chemical environments from Molecular Dynamics trajectories of proteins and other biomolecules.
 
 #+html: <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/coverage.svg" /></a> 
 
 * Introduction
-  
+  MDEnvironment provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs). Selecting surface or active 'patches' of atoms in biomolecules is provided as a rough tool at the moment, but the aim of the package is to provide this in a formalised way that complements the analysis using TRRDFs and VHFs.
   
   
 * Quick install
