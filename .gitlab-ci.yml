@@ -21,7 +21,7 @@ pytest:
   tags:
   - public-docker
   script:
-    - coverage run -m pytest
+    - coverage run -m pytest --log-cli-level=INFO
     - coverage report
     - coverage xml
   coverage: '/^TOTAL.+?(\d+\%)$/'
