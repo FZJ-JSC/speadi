@@ -9,13 +9,6 @@ def mde_vhf_rdf(paths, nacl_top, mdtraj_groups):
     return r, Grt
 
 
-@pytest.fixture(scope='module')
-def mdtraj_rdf(nacl_top, nacl_traj, mdtraj_groups):
-    r = np.loadtxt('data/mdtraj_r.txt')
-    gr = np.loadtxt('data/mdtraj_gr.txt')
-    return r, gr
-
-
 def test_rdf_binning_gmx(mde_vhf_rdf, gmx_rdf):
     gmx_r, _ = gmx_rdf
     r, _ = mde_vhf_rdf

@@ -13,6 +13,8 @@ def paths():
     paths['top_path'] = paths['test_dir'] + '/data/nacl_box.gro'
     paths['traj_path'] = paths['test_dir'] + '/data/nacl_box.xtc'
     paths['gmx_rdf'] = paths['test_dir'] + '/data/rdf.xvg'
+    paths['mdtraj_r'] = paths['test_dir'] + '/data/mdtraj_r.txt'
+    paths['mdtraj_gr'] = paths['test_dir'] + '/data/mdtraj_gr.txt'
     return paths
 
 
@@ -39,3 +41,10 @@ def gmx_rdf(paths):
 def mdtraj_groups(nacl_top, nacl_traj):
     groups = {g: nacl_traj.top.select(f'name {g}') for g in ['O', 'NA', 'CL', 'H']}
     return groups
+
+
+@pytest.fixture(scope='session')
+def mdtraj_rdf(paths):
+    r = np.loadtxt(paths['mdtraj_r'])
+    gr = np.loadtxt(paths['mdtraj_gr'])
+    return r, gr
