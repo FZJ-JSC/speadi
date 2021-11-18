@@ -1,12 +1,23 @@
 #+title: MDEnvironment
 #+author: Emile de Bruyn
 #+export_file_name: ../README.md
+#+options: toc:nil
+
+<h1 class="title">
+MDEnvironment
+<br />
+<span class="subtitle">
+A Python package that aims to characterise the dynamics of local chemical environments from Molecular Dynamics trajectories of proteins and other biomolecules.
+</span>
+</h1>
 
 #+html: <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/coverage.svg" /></a> 
 
 * Introduction
   
-* Quickstart
+  
+  
+* Quick install
   For installation into the default python environment, run the following in a terminal:
    #+begin_src bash
 		pip install --user git+https://pip_token:F4ZJGgGyyb62dP34xMqo@gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment.git
