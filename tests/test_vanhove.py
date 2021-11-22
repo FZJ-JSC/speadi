@@ -4,8 +4,8 @@ set_num_threads(2)
 
 @pytest.fixture(scope='module')
 def mde_vhf_rdf(paths, nacl_top, mdtraj_groups):
-    r, Grt = mde.Grt(paths['traj_path'], mdtraj_groups['O'], mdtraj_groups['O'], pbc='ortho', opt=True, top=nacl_top,
-                     n_windows=200, window_size=1, stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
+    r, Grt = mde.vanhove(paths['traj_path'], mdtraj_groups['O'], mdtraj_groups['O'], pbc='ortho', opt=True, top=nacl_top,
+                         n_windows=200, window_size=1, stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
     return r, Grt
 
 

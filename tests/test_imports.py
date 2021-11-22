@@ -6,4 +6,4 @@ def test_import_grt():
 
 
 def test_import_Grt():
-    assert mde.Grt == mde.Grt
+    assert mde.vanhove == mde.vanhove

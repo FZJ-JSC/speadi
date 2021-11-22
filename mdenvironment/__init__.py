@@ -25,4 +25,4 @@ from .patches import get_patches
 from .time_resolved_rdf.tools.plotting import plot_grt, plot_map
 from .vanhove.tools.plotting import plot_Grt, plot_dual_Grt
 from .time_resolved_rdf.grt import grt
-from .vanhove.Grt import Grt
+from .vanhove.vanhove import vanhove

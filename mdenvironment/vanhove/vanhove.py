@@ -14,9 +14,9 @@ if NUMBA_AVAILABLE:
     set_num_threads(get_num_threads())
 
 
-def Grt(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE,
-        n_windows=100, window_size=200, overlap=False, skip=1, stride=10,
-        r_range=(0.0, 2.0), nbins=400, self_part=False):
+def vanhove(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE,
+            n_windows=100, window_size=200, overlap=False, skip=1, stride=10,
+            r_range=(0.0, 2.0), nbins=400, self_part=False):
     """
     Calculate $G(r,t)$ for two groups given in a trajectory.
     $G(r,t)$ is calculated for a smaller time frame (typically 2 ps). $G(r,t)$ is

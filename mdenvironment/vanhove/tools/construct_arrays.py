@@ -3,8 +3,8 @@ import numpy as np
 
 def _construct_results_array(g1, g2, nbins, stride, window_size):
     """
-    Pre-allocates the array to store the results of each window, G_rts, according to the parameters supplied to `Grt()`.
-    Returns the group index arrays as lists of arrays if not given to `Grt()` as such.
+    Pre-allocates the array to store the results of each window, G_rts, according to the parameters supplied to `vanhove()`.
+    Returns the group index arrays as lists of arrays if not given to `vanhove()` as such.
 
     Parameters
     ----------
