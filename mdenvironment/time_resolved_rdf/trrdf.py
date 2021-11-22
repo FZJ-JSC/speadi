@@ -18,8 +18,8 @@ if NUMBA_AVAILABLE:
     set_num_threads(get_num_threads())
 
 
-def grt(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE, n_windows=100, window_size=200, skip=1, stride=10,
-        r_range=(0.0, 2.0), nbins=400, raw_counts=False):
+def trrdf(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE, n_windows=100, window_size=200, skip=1, stride=10,
+          r_range=(0.0, 2.0), nbins=400, raw_counts=False):
     """
     Calculate g(r,t) for two groups given in a trajectory. g(r) is
     calculated for each frame in the trajectory, then averaged over

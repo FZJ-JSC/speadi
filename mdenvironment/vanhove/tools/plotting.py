@@ -3,7 +3,7 @@ import numpy as np
 
 from ...multiline import multiline
 
-def plot_Grt(r, g_rt, xmax=10.0, t_max=2.0, ymax='peak', title='pair', pair='', save='grt.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
+def plot_Grt(r, g_rt, xmax=10.0, t_max=2.0, ymax='peak', title='pair', pair='', save='trrdf.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
     if ax is None:
         fig, ax = plt.subplots()
     else:

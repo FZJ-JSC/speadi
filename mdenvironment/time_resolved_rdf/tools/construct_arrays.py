@@ -3,8 +3,8 @@ import numpy as np
 
 def _construct_results_array(g1, g2, n_windows, nbins):
     """
-    Pre-allocates the array to store the results of each window, g_rts, according to the parameters supplied to `grt()`.
-    Returns the group index arrays as lists of arrays if not given to `grt()` as such.
+    Pre-allocates the array to store the results of each window, g_rts, according to the parameters supplied to `trrdf()`.
+    Returns the group index arrays as lists of arrays if not given to `trrdf()` as such.
 
     Parameters
     ----------

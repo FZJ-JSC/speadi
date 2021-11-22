@@ -7,7 +7,7 @@ import numpy as np
 
 from ...multiline import multiline
 
-def plot_grt(r, g_rt, xmax=10.0, t_max=5000.0, ymax='peak', title='pair', pair='', save='grt.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
+def plot_grt(r, g_rt, xmax=10.0, t_max=5000.0, ymax='peak', title='pair', pair='', save='trrdf.pdf', cmap='bwr', ax=None, cbar=True, xlabel=True, ylabel=True, cax=None):
     """
     Plots a 1D RDF for each time supplied (first dimension of g_rt[target,species] i.e. g_rt[0,1])
     """
