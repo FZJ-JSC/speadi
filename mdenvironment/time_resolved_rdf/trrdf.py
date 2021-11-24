@@ -4,12 +4,7 @@ two groups of particles for specified windows along a trajectory g(r,t).
 Groups can also consist of single particles.
 """
 
-import mdtraj as md
-import numpy as np
-from tqdm import trange
-
-from .tools.append_results import _append_grts
-from .tools.construct_arrays import _construct_results_array
+from .tools.utils import _construct_results_array, _calculate_according_to_inputs
 from ..common_tools.check_numba import check_numba
 
 NUMBA_AVAILABLE = check_numba()
@@ -70,29 +65,9 @@ def trrdf(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE, n_windows=10
     g_rt : np.array
         averaged function values of g(r,t) for each time from t=0 considered
     """
-    g_rts, g1, g2 = _construct_results_array(g1, g2, n_windows, nbins)
+    g_rt, g1, g2 = _construct_results_array(g1, g2, n_windows, nbins)
 
-    if isinstance(traj, str) and isinstance(top, md.core.topology.Topology):
-        g1_lens = np.array([len(x) for x in g1], dtype=np.int64)
-        g2_lens = np.array([len(x) for x in g2], dtype=np.int64)
-        g1_array = np.zeros((len(g1), g1_lens.max()), dtype=np.int64)
-        g2_array = np.zeros((len(g2), g2_lens.max()), dtype=np.int64)
-        for i in range(g1_array.shape[0]):
-            g1_array[i, :len(g1[i])] = g1[i]
-        for i in range(g2_array.shape[0]):
-            g2_array[i, :len(g2[i])] = g2[i]
-        with md.open(traj) as f:
-            f.seek(skip)
-            for n in trange(n_windows, total=n_windows, desc='Progress over trajectory'):
-                window = f.read_as_traj(top, n_frames=int(window_size / stride), stride=stride)
-                r, g_rts = _append_grts(g_rts, n, window.xyz, g1_array, g2_array,
-                                        window.unitcell_vectors, window.unitcell_volumes,
-                                        r_range, nbins, pbc, opt, raw_counts,
-                                        g1_lens=g1_lens, g2_lens=g2_lens)
+    r, g_rt = _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, opt, pbc, r_range, raw_counts, skip,
+                                             stride, top, traj, window_size)
 
-    else:
-        raise TypeError('You must input either the path to a trajectory together with a MDTraj topology instance, '
-                        'or an MDTraj trajectory, or a generator of such.')
-
-    g_rt = g_rts
     return r, g_rt

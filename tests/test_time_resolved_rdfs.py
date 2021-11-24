@@ -2,10 +2,10 @@ from fixtures import *
 set_num_threads(2)
 
 
-@pytest.fixture(scope='module', params=[(10, 20), (20, 10)])
+@pytest.fixture(scope='module', params=['ortho', True])
 def mde_rdf(request, paths, nacl_top, mdtraj_groups):
-    r, grt = mde.trrdf(paths['traj_path'], mdtraj_groups['O'], mdtraj_groups['O'], pbc='ortho', opt=True, top=nacl_top,
-                       n_windows=request.param[0], window_size=request.param[1], stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
+    r, grt = mde.trrdf(paths['traj_path'], mdtraj_groups['O'], mdtraj_groups['O'], pbc=request.param, opt=True, top=nacl_top,
+                       n_windows=20, window_size=10, stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
     return r, grt
 
 
