@@ -42,6 +42,9 @@ def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins, pbc, opt, 
     edges = np.linspace(r_range[0], r_range[1], nbins + 1)
     r = 0.5 * (edges[1:] + edges[:-1])
 
+    if not opt:
+        raise NotImplementedError('Vectorised TRRDFs have not been implemented yet! Try the jitted function with opt=True')
+
     if pbc == 'ortho':
         if opt:
             g_rts = _jit_append_grts_ortho_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts)

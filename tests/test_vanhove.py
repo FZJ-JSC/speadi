@@ -1,40 +1,51 @@
 from fixtures import *
+from itertools import product
+
 set_num_threads(2)
 
+refs = ['NA', 'CL']
+pbc = ['ortho', 'general']
+opt = [True, False]
+parameter_sets = list(product(refs, pbc, opt))
 
-@pytest.fixture(scope='module')
-def mde_vhf_rdf(paths, nacl_top, mdtraj_groups):
-    r, Grt = mde.vanhove(paths['traj_path'], mdtraj_groups['O'], mdtraj_groups['O'], pbc='ortho', opt=True, top=nacl_top,
-                         n_windows=200, window_size=1, stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
-    return r, Grt
+
+def idfn(args):
+    return f'ref: {args[0]}, pbc: {args[1]}, opt: {args[2]}'
+
+
+@pytest.fixture(scope='module', params=parameter_sets, ids=idfn)
+def mde_vhf_rdf(request, paths, nacl_top, mdtraj_groups):
+    r, Grt = mde.vanhove(paths['traj_path'], mdtraj_groups[request.param[0]], mdtraj_groups['O'], pbc=request.param[1],
+                         opt=request.param[2], top=nacl_top, n_windows=200, window_size=1, stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
+    return r, Grt, request.param[0]
 
 
 def test_rdf_binning_gmx(mde_vhf_rdf, gmx_rdf):
+    r, _, ref = mde_vhf_rdf
     gmx_r, _ = gmx_rdf
-    r, _ = mde_vhf_rdf
 
-    np.testing.assert_allclose(r, gmx_r[:-1], rtol=1e-4)
+    np.testing.assert_allclose(r, gmx_r[ref][:-1], rtol=1e-4)
 
 
 def test_rdf_binning_mdtraj(mde_vhf_rdf, mdtraj_rdf):
+    r, _, ref = mde_vhf_rdf
     mdtraj_r, _ = mdtraj_rdf
-    r, _ = mde_vhf_rdf
 
-    np.testing.assert_allclose(r, mdtraj_r, rtol=1e-4)
+    np.testing.assert_allclose(r, mdtraj_r[ref], rtol=1e-4)
 
 
 @pytest.mark.skip('Binning differences with GROMACS causes small differences.')
 def test_rdf_results_gmx(mde_vhf_rdf, gmx_rdf):
+    _, Grt, ref = mde_vhf_rdf
     _, gmx_gr = gmx_rdf
-    _, Grt = mde_vhf_rdf
     gr = np.mean(Grt, axis=(0,1,2))
 
-    np.testing.assert_allclose(gr, gmx_gr, atol=1e-2)
+    np.testing.assert_allclose(gr, gmx_gr[ref], rtol=5e-2)
 
 
 def test_rdf_results_mdtraj(mde_vhf_rdf, mdtraj_rdf):
+    _, Grt, ref = mde_vhf_rdf
     _, mdtraj_gr = mdtraj_rdf
-    _, Grt = mde_vhf_rdf
     gr = np.mean(Grt, axis=(0,1,2))
 
-    np.testing.assert_allclose(gr, mdtraj_gr, atol=1e-2)
+    np.testing.assert_allclose(gr, mdtraj_gr[ref], rtol=5e-2)

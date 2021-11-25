@@ -12,9 +12,14 @@ def paths():
     paths = {'test_dir': dirname(__file__)}
     paths['top_path'] = paths['test_dir'] + '/data/nacl_box.gro'
     paths['traj_path'] = paths['test_dir'] + '/data/nacl_box.xtc'
-    paths['gmx_rdf'] = paths['test_dir'] + '/data/rdf.xvg'
-    paths['mdtraj_r'] = paths['test_dir'] + '/data/mdtraj_r.txt'
-    paths['mdtraj_gr'] = paths['test_dir'] + '/data/mdtraj_gr.txt'
+
+    for ref in ['O', 'NA', 'CL']:
+        paths[ref] = {
+            'gmx': paths['test_dir'] + f'/data/{ref}_rdf.xvg',
+            'mdtraj_r': paths['test_dir'] + f'/data/{ref}_mdtraj_r.txt',
+            'mdtraj_gr': paths['test_dir'] + f'/data/{ref}_mdtraj_gr.txt'
+        }
+
     return paths
 
 
@@ -31,9 +36,13 @@ def nacl_traj(paths, nacl_top):
 
 
 @pytest.fixture(scope='session')
-def gmx_rdf(paths):
-    gmx_r, gmx_gr = np.loadtxt(paths['gmx_rdf'], comments=['#', '@'], unpack=True)
-    gmx_r += 0.005
+def gmx_rdf(request, paths):
+    gmx_r = {}
+    gmx_gr = {}
+    for ref in ['O', 'NA', 'CL']:
+        r, gr = np.loadtxt(paths[ref]['gmx'], comments=['#', '@'], unpack=True)
+        gmx_r[ref] = r + 0.005
+        gmx_gr[ref] = gr
     return gmx_r, gmx_gr
 
 
@@ -45,6 +54,9 @@ def mdtraj_groups(nacl_top, nacl_traj):
 
 @pytest.fixture(scope='session')
 def mdtraj_rdf(paths):
-    r = np.loadtxt(paths['mdtraj_r'])
-    gr = np.loadtxt(paths['mdtraj_gr'])
-    return r, gr
+    mdtraj_r = {}
+    mdtraj_gr = {}
+    for ref in ['O', 'NA', 'CL']:
+        mdtraj_r[ref] = np.loadtxt(paths[ref]['mdtraj_r'])
+        mdtraj_gr[ref] = np.loadtxt(paths[ref]['mdtraj_gr'])
+    return mdtraj_r, mdtraj_gr

@@ -1,4 +1,4 @@
-# This file was created Thu Nov 18 07:21:29 2021
+# This file was created Thu Nov 25 05:56:24 2021
 # Created by:
 #                   :-) GROMACS - gmx rdf, 2021.3-MODIFIED (-:
 # 
@@ -6,10 +6,10 @@
 # Data prefix:  /usr/local/gromacs/gromacs-plumed
 # Working dir:  /home/emile/ownCloud/darbeit/MDEnvironment/tests/data
 # Command line:
-#   gmx rdf -o -nobackup -f nacl_box -s nacl_box -n nacl_box -ref O -sel O -cut 0.005 -rmax 1.2049999999999998 -bin 0.01
+#   gmx rdf -nobackup -f nacl_box -s nacl_box -n nacl_box -ref O -sel O -o O_rdf.xvg -cut 0.005 -rmax 1.2049999999999998 -bin 0.01
 # gmx rdf is part of G R O M A C S:
 #
-# S  C  A  M  O  R  G
+# GROtesk MACabre and Sinister
 #
 @    title "Radial distribution"
 @    xaxis  label "r (nm)"
