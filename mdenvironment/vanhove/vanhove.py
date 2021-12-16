@@ -16,7 +16,7 @@ if NUMBA_AVAILABLE:
 
 def vanhove(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE,
             n_windows=100, window_size=200, overlap=False, skip=1, stride=10,
-            r_range=(0.0, 2.0), nbins=400, self_part=False):
+            r_range=(0.0, 2.0), nbins=400, self_only=False):
     """
     Calculate $G(r,t)$ for two groups given in a trajectory.
     $G(r,t)$ is calculated for a smaller time frame (typically 2 ps). $G(r,t)$ is
@@ -79,14 +79,14 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE,
     -------
     r : np.array
         bin centers of G(r,t)
-    G_rt : np.array
+    G_distinct  : np.array
         averaged function values of G(r,t) for each time from t=0 considered
     """
-    G_rts, g1, g2 = _construct_results_array(g1, g2, nbins, stride, window_size)
+    G_self, G_distinct, g1, g2 = _construct_results_array(g1, g2, nbins, stride, window_size)
 
-    r, G_rts, n_windows = _calculate_according_to_inputs(G_rts, g1, g2, n_windows, nbins, opt, overlap, pbc, r_range, self_part, skip,
+    r, G_self, G_distinct, n_windows = _calculate_according_to_inputs(G_self, G_distinct, g1, g2, n_windows, nbins, opt, overlap, pbc, r_range, self_only, skip,
                                                          stride, top, traj, window_size)
-
-    G_rt = G_rts / n_windows
-    return r, G_rt
+    G_self = G_self / n_windows
+    G_distinct = G_distinct / n_windows
+    return r, G_self, G_distinct
 

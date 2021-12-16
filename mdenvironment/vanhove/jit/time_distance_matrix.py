@@ -4,7 +4,7 @@ import numpy as np
 from numba import njit, float32, prange
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
+@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
 def _compute_rt_general_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -33,14 +33,16 @@ def _compute_rt_general_mic(window, g1, g2, bv):
 
     Returns
     -------
-    rt : numpy.array
+    rt_distinct : numpy.array
         Numpy array containing the time-distance matrix.
     """
     rt0 = window[0]
     r1 = rt0[g1]
     xyz = window[:, g2]
+    intersect = np.intersect1d(g1, g2)
 
-    rt = np.empty((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
+    rt_distinct = np.empty((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
+    rt_self = np.empty((window.shape[0], g1.shape[0]), dtype=float32)
 
     frames = window.shape[0]
 
@@ -51,16 +53,18 @@ def _compute_rt_general_mic(window, g1, g2, bv):
                 s12 = bv_inv * r1[i] - bv_inv * xyz[t][j]
                 s12 -= np.rint(s12)
                 r12 = bv[t] * s12
-                # rt[t][i][j] = np.linalg.norm(r12)
-                rt[t][i][j] = math.sqrt(r12[0,0]**2 + r12[1,1]**2 + r12[2,2]**2)
-                # remove self interaction part of G(r,t)
-                if i == j:
-                    rt[t][i][j] = 99.0
+                rt_distinct[t][i][j] = math.sqrt(r12[0,0]**2 + r12[1,1]**2 + r12[2,2]**2)
 
-    return rt
+        # remove self interaction part of G(r,t)
+        for i in prange(intersect.shape[0]):
+            ix = intersect[i]
+            rt_self[t][ix] = rt_distinct[t][ix][ix]
+            rt_distinct[t][ix][ix] = 99.0
+
+    return rt_self, rt_distinct
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
+@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
 def _compute_rt_ortho_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -88,15 +92,17 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
 
     Returns
     -------
-    rt : numpy.array
+    rt_distinct : numpy.array
         Numpy array containing the time-distance matrix.
     """
     rt0 = window[0]
     r1 = rt0[g1]
     xyz = window[:, g2]
+    intersect = np.intersect1d(g1, g2)
 
-    rt = np.zeros((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
-    rtd = np.zeros((window.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
+    rt_distances = np.zeros((window.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
+    rt_distinct = np.zeros((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
+    rt_self = np.zeros((window.shape[0], g1.shape[0]), dtype=float32)
 
     frames = window.shape[0]
 
@@ -104,20 +110,24 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
         for i in prange(g1.shape[0]):
             for j in prange(g2.shape[0]):
                 for coord in range(3):
-                    rtd[t][i][j][coord] = r1[i][coord] - xyz[t][j][coord]
-                    rtd[t][i][j][coord] -= bv[t][coord][coord] * round(rtd[t][i][j][coord] / bv[t][coord][coord])
-                    rtd[t][i][j][coord] = rtd[t][i][j][coord] ** 2
-                    rt[t][i][j] += rtd[t][i][j][coord]
-                rt[t][i][j] = math.sqrt(rt[t][i][j])
-                # remove self interaction part of G(r,t)
-                if i == j:
-                    rt[t][i][j] = 99.0
+                    rt_distances[t][i][j][coord] = r1[i][coord] - xyz[t][j][coord]
+                    rt_distances[t][i][j][coord] -= bv[t][coord][coord] * \
+                                                    round(rt_distances[t][i][j][coord] / bv[t][coord][coord])
+                    rt_distances[t][i][j][coord] = rt_distances[t][i][j][coord] ** 2
+                    rt_distinct[t][i][j] += rt_distances[t][i][j][coord]
+                rt_distinct[t][i][j] = math.sqrt(rt_distinct[t][i][j])
 
-    return rt
+        # remove self interaction part of G(r,t)
+        for i in prange(intersect.shape[0]):
+            ix = intersect[i]
+            rt_self[t][ix] = rt_distinct[t][ix][ix]
+            rt_distinct[t][ix][ix] = 99.0
+
+    return rt_self, rt_distinct
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
-def _compute_rt_mic_self(window, g1, g2, bv):
+@njit(['f4[:,:](f4[:,:,:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
+def _compute_rt_mic_self(window, g1, bv):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and
@@ -132,36 +142,31 @@ def _compute_rt_mic_self(window, g1, g2, bv):
     g1 : numpy.array
         Numpy array of atom indices representing the group to calculate G(r,t)
     	for.
-    g2 : numpy.array
-        Numpy array of atom indices representing the group to calculate G(r,t)
-    	with.
     bv : numpy.array
         simulation box vectors (which vary over time) as supplied by
         mdtraj.trajectory.unitcell_vectors.
 
     Returns
     -------
-    rt : numpy.array
+    rt_self : numpy.array
         Numpy array containing the time-distance matrix.
     """
     rt0 = window[0]
     r1 = rt0[g1]
-    xyz = window[:, g2]
+    xyz = window[:, g1]
 
-    rt = np.zeros((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
-    rtd = np.zeros((window.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
+    rt_distances = np.zeros((window.shape[0], g1.shape[0], 3), dtype=float32)
+    rt_self = np.zeros((window.shape[0], g1.shape[0]), dtype=float32)
 
     frames = window.shape[0]
 
     for t in prange(frames):
         for i in prange(g1.shape[0]):
             for coord in range(3):
-                rtd[t][i][i][coord] = r1[i][coord] - xyz[t][i][coord]
-                rtd[t][i][i][coord] -= bv[t][coord][coord] * round(rtd[t][i][i][coord] / bv[t][coord][coord])
-                rtd[t][i][i][coord] = rtd[t][i][i][coord] ** 2
-                rt[t][i][i] += rtd[t][i][i][coord]
-            rt[t][i][i] = math.sqrt(rt[t][i][i])
+                rt_distances[t][i][coord] = r1[i][coord] - xyz[t][i][coord]
+                rt_distances[t][i][coord] -= bv[t][coord][coord] * round(rt_distances[t][i][coord] / bv[t][coord][coord])
+                rt_distances[t][i][coord] = rt_distances[t][i][coord] ** 2
+                rt_self[t][i] += rt_distances[t][i][coord]
+            rt_self[t][i] = math.sqrt(rt_self[t][i])
 
-    return rt
-
-
+    return rt_self

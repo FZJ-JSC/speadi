@@ -15,9 +15,9 @@ def idfn(args):
 
 @pytest.fixture(scope='module', params=parameter_sets, ids=idfn)
 def mde_vhf_rdf(request, paths, nacl_top, mdtraj_groups):
-    r, Grt = mde.vanhove(paths['traj_path'], mdtraj_groups[request.param[0]], mdtraj_groups['O'], pbc=request.param[1],
-                         opt=request.param[2], top=nacl_top, n_windows=200, window_size=1, stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
-    return r, Grt, request.param[0]
+    r, G_self, G_distinct = mde.vanhove(paths['traj_path'], mdtraj_groups[request.param[0]], mdtraj_groups['O'],
+                                        pbc=request.param[1], opt=request.param[2], top=nacl_top, n_windows=200, window_size=1, stride=1, skip=0, r_range=(0.0, 1.2), nbins=120)
+    return r, G_self, G_distinct, request.param[0]
 
 
 def test_rdf_binning_gmx(mde_vhf_rdf, gmx_rdf):
@@ -36,16 +36,16 @@ def test_rdf_binning_mdtraj(mde_vhf_rdf, mdtraj_rdf):
 
 @pytest.mark.skip('Binning differences with GROMACS causes small differences.')
 def test_rdf_results_gmx(mde_vhf_rdf, gmx_rdf):
-    _, Grt, ref = mde_vhf_rdf
+    _, _, G_distinct, ref = mde_vhf_rdf
     _, gmx_gr = gmx_rdf
-    gr = np.mean(Grt, axis=(0,1,2))
+    gr = np.mean(G_distinct, axis=(0,1,2))
 
     np.testing.assert_allclose(gr, gmx_gr[ref], rtol=5e-2)
 
 
 def test_rdf_results_mdtraj(mde_vhf_rdf, mdtraj_rdf):
-    _, Grt, ref = mde_vhf_rdf
+    _, _, G_distinct, ref = mde_vhf_rdf
     _, mdtraj_gr = mdtraj_rdf
-    gr = np.mean(Grt, axis=(0,1,2))
+    gr = np.mean(G_distinct, axis=(0,1,2))
 
     np.testing.assert_allclose(gr, mdtraj_gr[ref], rtol=5e-2)

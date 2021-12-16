@@ -9,7 +9,7 @@ https://numba.pydata.org/numba-examples/examples/density_estimation/histogram/re
 """
 
 import numpy as np
-from numba import njit, prange, float64
+from numba import njit, float32
 
 @njit
 def _compute_bin(x, bin_edges):
@@ -61,7 +61,7 @@ def _histogram(a, bin_edges):
     -------
     hist : numpy.array
     """
-    hist = np.zeros((bin_edges.shape[0],), dtype=float64)
+    hist = np.zeros((bin_edges.shape[0],), dtype=float32)
 
     for x in a.flat:
         bin = _compute_bin(x, bin_edges)
