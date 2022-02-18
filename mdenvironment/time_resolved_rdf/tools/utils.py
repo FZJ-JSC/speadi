@@ -1,6 +1,8 @@
+from mdtraj.formats.hdf5 import HDF5TrajectoryFile
+from tqdm import trange
+
 import mdtraj as md
 import numpy as np
-from tqdm import trange
 
 from ..jit.add_distribution_function_time_slice import _jit_append_grts_ortho_mic, _jit_append_grts_general_mic
 
@@ -69,7 +71,10 @@ def _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, opt, pbc, r_r
         with md.open(traj) as f:
             f.seek(skip)
             for n in trange(n_windows, total=n_windows, desc='Progress over trajectory'):
-                window = f.read_as_traj(top, n_frames=int(window_size / stride), stride=stride)
+                if type(f) == HDF5TrajectoryFile:
+                    window = f.read_as_traj(n_frames=window_size, stride=stride)
+                else:
+                    window = f.read_as_traj(top, n_frames=int(window_size / stride), stride=stride)
                 r, g_rt = _append_grts(g_rt, n, window.xyz, g1_array, g2_array,
                                        window.unitcell_vectors, window.unitcell_volumes,
                                        r_range, nbins, pbc, opt, raw_counts,
