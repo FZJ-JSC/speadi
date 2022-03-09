@@ -21,14 +21,14 @@ def mde_vhf_rdf(request, paths, nacl_top, mdtraj_groups):
 
 
 def test_rdf_binning_gmx(mde_vhf_rdf, gmx_rdf):
-    r, _, ref = mde_vhf_rdf
+    r, _, _, ref = mde_vhf_rdf
     gmx_r, _ = gmx_rdf
 
     np.testing.assert_allclose(r, gmx_r[ref][:-1], rtol=1e-4)
 
 
 def test_rdf_binning_mdtraj(mde_vhf_rdf, mdtraj_rdf):
-    r, _, ref = mde_vhf_rdf
+    r, _, _, ref = mde_vhf_rdf
     mdtraj_r, _ = mdtraj_rdf
 
     np.testing.assert_allclose(r, mdtraj_r[ref], rtol=1e-4)

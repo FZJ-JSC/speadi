@@ -3,8 +3,9 @@ import math
 import numpy as np
 from numba import njit, float32, prange
 
+opts = dict(parallel=True, fastmath=True, nogil=True, cache=True, debug=True)
 
-@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
+@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
 def _compute_rt_general_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -39,10 +40,10 @@ def _compute_rt_general_mic(window, g1, g2, bv):
     rt0 = window[0]
     r1 = rt0[g1]
     xyz = window[:, g2]
-    intersect = np.intersect1d(g1, g2)
 
     rt_distinct = np.empty((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
     rt_self = np.empty((window.shape[0], g1.shape[0]), dtype=float32)
+    rt_self[:] = 9999.0
 
     frames = window.shape[0]
 
@@ -55,16 +56,15 @@ def _compute_rt_general_mic(window, g1, g2, bv):
                 r12 = bv[t] * s12
                 rt_distinct[t][i][j] = math.sqrt(r12[0,0]**2 + r12[1,1]**2 + r12[2,2]**2)
 
-        # remove self interaction part of G(r,t)
-        for i in prange(intersect.shape[0]):
-            ix = intersect[i]
-            rt_self[t][ix] = rt_distinct[t][ix][ix]
-            rt_distinct[t][ix][ix] = 99.0
+                if g1[i] == g2[j]:
+                    rt_self[t][i] = math.sqrt(rt_distinct[t][i][j])
+                else:
+                    rt_distinct[t][i][j] = math.sqrt(rt_distinct[t][i][j])
 
     return rt_self, rt_distinct
 
 
-@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
+@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
 def _compute_rt_ortho_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -98,11 +98,11 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     rt0 = window[0]
     r1 = rt0[g1]
     xyz = window[:, g2]
-    intersect = np.intersect1d(g1, g2)
 
     rt_distances = np.zeros((window.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
     rt_distinct = np.zeros((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
     rt_self = np.zeros((window.shape[0], g1.shape[0]), dtype=float32)
+    rt_self[:] = 9999.0
 
     frames = window.shape[0]
 
@@ -115,18 +115,17 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
                                                     round(rt_distances[t][i][j][coord] / bv[t][coord][coord])
                     rt_distances[t][i][j][coord] = rt_distances[t][i][j][coord] ** 2
                     rt_distinct[t][i][j] += rt_distances[t][i][j][coord]
-                rt_distinct[t][i][j] = math.sqrt(rt_distinct[t][i][j])
 
-        # remove self interaction part of G(r,t)
-        for i in prange(intersect.shape[0]):
-            ix = intersect[i]
-            rt_self[t][ix] = rt_distinct[t][ix][ix]
-            rt_distinct[t][ix][ix] = 99.0
+                if g1[i] == g2[j]:
+                    rt_self[t][i] = math.sqrt(rt_distinct[t][i][j])
+                else:
+                    rt_distinct[t][i][j] = math.sqrt(rt_distinct[t][i][j])
+        rt_distinct[t][i][i] = 9999.0
 
     return rt_self, rt_distinct
 
 
-@njit(['f4[:,:](f4[:,:,:],i8[:],f4[:,:,:])'], parallel=True, fastmath=True, nogil=True, cache=True)
+@njit(['f4[:,:](f4[:,:,:],i8[:],f4[:,:,:])'], **opts)
 def _compute_rt_mic_self(window, g1, bv):
     """
     Numba jitted and parallelised version of function to calculate

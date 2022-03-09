@@ -61,7 +61,8 @@ def _histogram(a, bin_edges):
     -------
     hist : numpy.array
     """
-    hist = np.zeros((bin_edges.shape[0],), dtype=float32)
+    # hist = np.zeros((bin_edges.shape[0],), dtype=float32)
+    hist = np.zeros((bin_edges.shape[0],), dtype=np.float32)
 
     for x in a.flat:
         bin = _compute_bin(x, bin_edges)
