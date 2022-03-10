@@ -3,7 +3,7 @@ from numba import njit, prange
 from .histogram_distances import _compute_G_self, _compute_G_distinct
 from .time_distance_matrix import _compute_rt_general_mic, _compute_rt_ortho_mic, _compute_rt_mic_self
 
-opts = dict(parallel=True, fastmath=True, nogil=True, cache=True, debug=True)
+opts = dict(parallel=True, fastmath=True, nogil=True, cache=True, debug=False)
 
 @njit(['Tuple((f4[:,:,:],f4[:,:,:,:]))(f4[:,:,:],f4[:,:,:,:],f4[:,:,:],i8[:,:],i8[:,:],i8[:],i8[:],f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], **opts)
 def _jit_append_Grts_general_mic(G_self, G_distinct, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins):
