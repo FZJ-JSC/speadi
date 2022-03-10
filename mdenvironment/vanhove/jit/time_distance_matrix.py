@@ -1,7 +1,27 @@
 import math
 
 import numpy as np
-from numba import njit, float32, prange
+from numba import njit, float32, prange, guvectorize
+
+opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
+vopts = dict(boundscheck=False, fastmath=True, nopython=True, target='parallel')
+
+
+@guvectorize(['f4[:,:,:],f4[:,:,:],f4[:,:,:,:]'],
+             '(i,n,n),(j,n,n)->(j,i,n,n)', **vopts)
+def _vec_grid_sub(s1, s2, s12):
+    l1 = s1.shape[0]
+    l2 = s2.shape[0]
+
+    s1 = np.repeat(s1, l2).reshape((-1, l2))
+    s1 = np.swapaxes(s1, 0, 1)
+    s1 = np.reshape(s1.ravel(), (l2, l1, 3, 3))
+    s2 = np.repeat(s2, l1).reshape((-1, l1))
+    s2 = np.swapaxes(s2, 0, 1)
+    s2 = np.reshape(s2.ravel(), (l2, l1, 3, 3))
+
+    s12 = s1 - s2
+
 
 @njit(['f4[:,:,:,:](f4[:,:,:],f4[:,:,:])'], **opts)
 def _grid_sub(s1, s2):
@@ -20,8 +40,10 @@ def _grid_sub(s1, s2):
     return s12
 
 
+# @njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'])
+# @njit
 @njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
-def _compute_rt_general_mic(window, g1, g2, bv):
+def _compute_rt_general_mic(window, g1, g2, bvt):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and
@@ -56,59 +78,62 @@ def _compute_rt_general_mic(window, g1, g2, bv):
     r1 = rt0[g1]
     xyz = window[:, g2]
 
-    rt_distinct = np.empty((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
-    rt_self = np.empty((window.shape[0], g1.shape[0]), dtype=float32)
+    l1 = g1.shape[0]
+    l2 = g2.shape[0]
+    lw = window.shape[0]
+
+    ri = np.zeros((4), dtype=float32)
+    rj = np.zeros((4), dtype=float32)
+
+    rt_distinct = np.empty((lw, l1, l2), dtype=float32)
+    rt_distinct[:] = 9999.0
+    rt_self = np.empty((lw, l1), dtype=float32)
     rt_self[:] = 9999.0
 
     frames = window.shape[0]
 
     for t in prange(frames):
-        bv_inv = np.linalg.inv(bv[t])
-        # for i in prange(g1.shape[0]):
-        #     for j in prange(g2.shape[0]):
-        #         s12 = bv_inv * r1[i] - bv_inv * xyz[t][j]
-        #         s12 -= np.rint(s12)
-        #         r12 = bv[t] * s12
-        #         rt_distinct[t][i][j] = math.sqrt(r12[0,0]**2 + r12[1,1]**2 + r12[2,2]**2)
+        bv = bvt[t].flatten()
+        bv1 = np.array([bv[0], bv[3], bv[6], 0], dtype=float32)
+        bv2 = np.array([bv[1], bv[4], bv[7], 0], dtype=float32)
+        bv3 = np.array([bv[2], bv[5], bv[8], 0], dtype=float32)
+        bv3 -= bv2 * round(bv3[1] / bv2[1])
+        bv3 -= bv1 * round(bv3[0] / bv1[0])
+        bv2 -= bv1 * round(bv2[0] / bv1[0])
+        recip_box_size = np.array([1.0 / bv1[0], 1.0 / bv2[1], 1.0 / bv3[2]])
 
-        #         if g1[i] == g2[j]:
-        #             rt_self[t][i] = math.sqrt(rt_distinct[t][i][j])
-        #         else:
-        #             rt_distinct[t][i][j] = math.sqrt(rt_distinct[t][i][j])
+        for i in prange(l1):
+            for j in prange(l2):
+                ri[:3] = r1[i]
+                rj[:3] = xyz[t, j]
+                r12 = rj - ri
 
-        # s1 = np.expand_dims(bv_inv, 0) * np.expand_dims(r1, -1)
-        s1 = np.zeros((g1.shape[0], 3, 3), dtype=float32)
-        for i in prange(g1.shape[0]):
-            s1[i] = bv_inv * r1[i]
+                r12 -= bv3 * np.round(r12[2] * recip_box_size[2])
+                r12 -= bv2 * np.round(r12[1] * recip_box_size[1])
+                r12 -= bv1 * np.round(r12[0] * recip_box_size[0])
 
-        # s2 = np.expand_dims(bv_inv, 0) * np.expand_dims(xyz[t], -1)
-        s2 = np.zeros((g2.shape[0], 3, 3), dtype=float32)
-        for i in prange(g2.shape[0]):
-            s2[i] = bv_inv * xyz[t, i]
+                min_dist2 = 9999.0
+                min_r = r12
+                for x in (-1, 0, 1):
+                    ra = r12 + bv1 * x
+                    for y in (-1, 0, 1):
+                        rb = ra + bv2 * y
+                        for z in (-1, 0, 1):
+                            rc = rb + bv3 * z
+                            dist2 = np.dot(rc, rc)
+                            if dist2 <= min_dist2:
+                                min_dist2 = dist2
+                                min_r = rc
 
-        s12 = _grid_sub(s1, s2)
-        s12 -= np.rint(s12)
-
-        # r12 = np.expand_dims(np.expand_dims(bv[t], 0), 0) * s12
-        r12 = np.zeros((g2.shape[0], g1.shape[0], 3, 3), dtype=float32)
-        for j in prange(g2.shape[0]):
-            for i in range(g1.shape[0]):
-                r12[j, i] = bv[t] * s12[j, i]
-
-        rt_diag = np.zeros((g1.shape[0], g2.shape[0], 3))
-        for i in prange(g1.shape[0]):
-            for j in prange(g2.shape[0]):
-                rt_diag[i, j] = np.diag(r12[j, i].T)
-        rt_sq = np.sum(rt_diag**2, axis=2)
-        rt_distinct[t] = np.sqrt(rt_sq)
-
-        # remove self interaction part of G(r,t)
-        rt_self[t] = np.diag(rt_distinct[t])
-        np.fill_diagonal(rt_distinct[t], 9999.0)
+                if g1[i] == g2[j]:
+                    rt_self[t, i] = math.sqrt(min_dist2)
+                else:
+                    rt_distinct[t, i, j] = math.sqrt(min_dist2)
 
     return rt_self, rt_distinct
 
 
+# @njit
 @njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
 def _compute_rt_ortho_mic(window, g1, g2, bv):
     """
@@ -170,6 +195,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     return rt_self, rt_distinct
 
 
+# @njit
 @njit(['f4[:,:](f4[:,:,:],i8[:],f4[:,:,:])'], **opts)
 def _compute_rt_mic_self(window, g1, bv):
     """
@@ -204,8 +230,8 @@ def _compute_rt_mic_self(window, g1, bv):
 
     frames = window.shape[0]
 
-    for t in prange(frames):
-        for i in prange(g1.shape[0]):
+    for t in range(frames):
+        for i in range(g1.shape[0]):
             for coord in range(3):
                 rt_distances[t][i][coord] = r1[i][coord] - xyz[t][i][coord]
                 rt_distances[t][i][coord] -= bv[t][coord][coord] * round(rt_distances[t][i][coord] / bv[t][coord][coord])

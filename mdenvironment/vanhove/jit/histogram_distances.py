@@ -3,7 +3,7 @@ from numba import njit, float32, prange
 
 from ...histogram import _histogram
 
-opts = dict(parallel=True, fastmath=True, nogil=True, cache=True, debug=False)
+opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 
 @njit
 def _calculate_bin_edges(nbins, r_range):
@@ -11,6 +11,7 @@ def _calculate_bin_edges(nbins, r_range):
     return edges
 
 
+# @njit
 @njit(['f8[:,:](f4[:,:],f4[:],UniTuple(f8,2),i8)'], **opts)
 def _compute_G_self(self_rt_array, window_unitcell_volumes, r_range, nbins):
     """
@@ -42,7 +43,7 @@ def _compute_G_self(self_rt_array, window_unitcell_volumes, r_range, nbins):
     G_self = np.empty((n_frames, nbins), dtype=float32)
     # G_self = np.empty((n_frames, nbins), dtype=np.float32)
     edges = _calculate_bin_edges(nbins, r_range)
-    for t in prange(n_frames):
+    for t in range(n_frames):
         G_self[t] = _histogram(self_rt_array[t], edges)
 
     r = 0.5 * (edges[1:] + edges[:-1])
@@ -55,6 +56,7 @@ def _compute_G_self(self_rt_array, window_unitcell_volumes, r_range, nbins):
     return G_self
 
 
+# @njit
 @njit(['f8[:,:](f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], **opts)
 def _compute_G_distinct(distinct_rt_array, window_unitcell_volumes, r_range, nbins):
     """
@@ -86,7 +88,7 @@ def _compute_G_distinct(distinct_rt_array, window_unitcell_volumes, r_range, nbi
     G_distinct = np.empty((n_frames, nbins), dtype=float32)
     # G_distinct = np.empty((n_frames, nbins), dtype=np.float32)
     edges = _calculate_bin_edges(nbins, r_range)
-    for t in prange(n_frames):
+    for t in range(n_frames):
         G_distinct[t] = _histogram(distinct_rt_array[t], edges)
 
     r = 0.5 * (edges[1:] + edges[:-1])
