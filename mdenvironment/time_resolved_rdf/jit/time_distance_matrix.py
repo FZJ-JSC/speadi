@@ -127,8 +127,10 @@ def _rt_general_mic(window, g1, g2, bvt):
 
                     rt[t,i,j] += min_dist2
 
+                rt[t,i,j] = math.sqrt(rt[t,i,j])
+
                 # remove self interaction part of g(r,t)
                 if g1[i] == g2[j]:
-                    rt[t,i,i] = 9999.0
+                    rt[t,i,j] = 9999.0
 
     return rt
