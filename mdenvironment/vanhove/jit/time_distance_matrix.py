@@ -123,7 +123,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     rt_distinct : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    r01 = window[0,g1]
+    r01 = window[0][g1]
     rt2 = window[:,g2]
 
     l1 = g1.shape[0]
@@ -138,7 +138,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     for t in prange(lw):
         for i in prange(l1):
             for j in prange(l2):
-                for coord in range(3):
+                for coord in prange(3):
                     rt_distances[t,i,j,coord] = r01[i,coord] - rt2[t,j,coord]
                     rt_distances[t,i,j,coord] -= bv[t,coord,coord] * \
                                                     round(rt_distances[t,i,j,coord] / bv[t,coord,coord])
@@ -155,7 +155,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
 
 
 @njit(['f4[:,:](f4[:,:,:],i8[:],f4[:,:,:])'], **opts)
-def _compute_rt_mic_self(window, g1, bv):
+def _compute_rt_ortho_mic_self(window, g1, bv):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and
@@ -179,19 +179,18 @@ def _compute_rt_mic_self(window, g1, bv):
     rt_self : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    rt0 = window[0]
-    r1 = rt0[g1]
-    xyz = window[:,g1]
+    rt1 = window[:,g1]
 
-    rt_distances = np.zeros((window.shape[0], g1.shape[0], 3), dtype=float32)
-    rt_self = np.zeros((window.shape[0], g1.shape[0]), dtype=float32)
+    l1 = g1.shape[0]
+    lw = window.shape[0]
 
-    frames = window.shape[0]
+    rt_distances = np.zeros((lw, l1, 3), dtype=float32)
+    rt_self = np.zeros((lw, l1), dtype=float32)
 
-    for t in range(frames):
-        for i in range(g1.shape[0]):
-            for coord in range(3):
-                rt_distances[t,i,coord] = r1[i,coord] - xyz[t,i,coord]
+    for t in prange(lw):
+        for i in prange(l1):
+            for coord in prange(3):
+                rt_distances[t,i,coord] = rt1[0,i,coord] - rt1[t,i,coord]
                 rt_distances[t,i,coord] -= bv[t,coord,coord] * round(rt_distances[t,i,coord] / bv[t,coord,coord])
                 rt_distances[t,i,coord] = rt_distances[t,i,coord] ** 2
                 rt_self[t,i] += rt_distances[t,i,coord]
