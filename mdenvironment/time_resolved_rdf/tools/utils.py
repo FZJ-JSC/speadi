@@ -5,6 +5,7 @@ import mdtraj as md
 import numpy as np
 
 from ..jit.add_distribution_function_time_slice import _jit_append_grts_ortho_mic, _jit_append_grts_general_mic
+from ..vectorized.add_distribution_function_time_slice import _append_grts_mic
 
 
 def _construct_results_array(g1, g2, n_windows, nbins):
@@ -44,15 +45,20 @@ def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins, pbc, opt, 
     edges = np.linspace(r_range[0], r_range[1], nbins + 1)
     r = 0.5 * (edges[1:] + edges[:-1])
 
-    if not opt:
-        raise NotImplementedError('Vectorised TRRDFs have not been implemented yet! Try the jitted function with opt=True')
+    # if not opt:
+    #     raise NotImplementedError('Vectorised TRRDFs have not been implemented yet! Try the jitted function with opt=True')
 
     if pbc == 'ortho':
         if opt:
             g_rts = _jit_append_grts_ortho_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts)
-    elif pbc:
+        else:
+            g_rts = _append_grts_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts, orthogonal=True)
+
+    else:
         if opt:
             g_rts = _jit_append_grts_general_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts)
+        else:
+            g_rts = _append_grts_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts, orthogonal=False)
 
     return r, g_rts
 
