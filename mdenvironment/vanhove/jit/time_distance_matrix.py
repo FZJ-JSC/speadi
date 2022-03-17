@@ -7,7 +7,7 @@ opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 
 
 @njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
-def _compute_rt_general_mic(window, g1, g2, bvt):
+def _rtau_general_mic(window, g1, g2, bvt):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and
@@ -93,7 +93,7 @@ def _compute_rt_general_mic(window, g1, g2, bvt):
 
 
 @njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
-def _compute_rt_ortho_mic(window, g1, g2, bv):
+def _rtau_ortho_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and
@@ -155,7 +155,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
 
 
 @njit(['f4[:,:](f4[:,:,:],i8[:],f4[:,:,:])'], **opts)
-def _compute_rt_ortho_mic_self(window, g1, bv):
+def _rtau_ortho_mic_self(window, g1, bv):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and

@@ -7,7 +7,7 @@ opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 
 
 @njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
-def _compute_rt_ortho_mic(window, g1, g2, bv):
+def _rt_ortho_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and
@@ -60,7 +60,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
 
 
 @njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
-def _compute_rt_general_mic(window, g1, g2, bv):
+def _rt_general_mic(window, g1, g2, bvt):
     """
     Numba jitted and parallelised version of function to calculate
     the distance matrix between each atom in group 1 at time zero and
@@ -96,14 +96,36 @@ def _compute_rt_general_mic(window, g1, g2, bv):
     rtd = np.zeros((lw, l1, l2, 3), dtype=float32)
 
     for t in prange(lw):
-        bv_inv = np.linalg.inv(bv[t])
+        bv = bvt[t].flatten()
+        bv1 = np.array([bv[0], bv[3], bv[6], 0], dtype=float32)
+        bv2 = np.array([bv[1], bv[4], bv[7], 0], dtype=float32)
+        bv3 = np.array([bv[2], bv[5], bv[8], 0], dtype=float32)
+
+        bv3 -= bv2 * round(bv3[1] / bv2[1])
+        bv3 -= bv1 * round(bv3[0] / bv1[0])
+        bv2 -= bv1 * round(bv2[0] / bv1[0])
+        recip_box_size = np.array([1.0 / bv1[0], 1.0 / bv2[1], 1.0 / bv3[2]], dtype=float32)
+
         for i in prange(l1):
             for j in prange(l2):
-                s12 = bv_inv * r1[t,i] - bv_inv * r2[t,j]
-                s12 -= np.rint(s12)
-                r12 = bv[t] * s12
-                # rt[t,i,j] = np.linalg.norm(r12)
-                rt[t,i,j] = math.sqrt(r12[0, 0] ** 2 + r12[1, 1] ** 2 + r12[2, 2] ** 2)
+                for coord in prange(3):
+                    rtd[t,i,j,coord] = r1[t,i,coord] - r2[t,j,coord]
+                    rtd[t,i,j,coord] -= bv3[coord] * round(rtd[t,i,j,2] * recip_box_size[2])
+                    rtd[t,i,j,coord] -= bv2[coord] * round(rtd[t,i,j,1] * recip_box_size[2])
+                    rtd[t,i,j,coord] -= bv1[coord] * round(rtd[t,i,j,0] * recip_box_size[0])
+
+                    min_dist2 = 9999.0
+                    for x in prange(-1, 2):
+                        ra = rtd[t,i,j,coord] + bv1[coord] * x
+                        for y in prange(-1, 2):
+                            rb = ra + bv2[coord] * y
+                            for z in prange(-1, 2):
+                                rc = rb + bv3[coord] * z
+                                dist2 = rc * rc
+                                if dist2 <= min_dist2:
+                                    min_dist2 = dist2
+
+                    rt[t,i,j] += min_dist2
 
                 # remove self interaction part of g(r,t)
                 if g1[i] == g2[j]:
