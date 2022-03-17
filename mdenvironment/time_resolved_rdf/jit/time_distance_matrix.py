@@ -32,7 +32,8 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     rt : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    xyz = window[:, g2]
+    r1 = window[:, g1]
+    r2 = window[:, g2]
 
     l1 = g1.shape[0]
     l2 = g2.shape[0]
@@ -45,7 +46,7 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
         for i in prange(l1):
             for j in prange(l2):
                 for coord in prange(3):
-                    rtd[t,i,j,coord] = xyz[t,i,coord] - xyz[t,j,coord]
+                    rtd[t,i,j,coord] = r1[t,i,coord] - r2[t,j,coord]
                     rtd[t,i,j,coord] -= bv[t,coord,coord] * round(rtd[t,i,j,coord] / bv[t,coord,coord])
                     rtd[t,i,j,coord] = rtd[t,i,j,coord] ** 2
                     rt[t,i,j] += rtd[t,i,j,coord]
@@ -84,7 +85,8 @@ def _compute_rt_general_mic(window, g1, g2, bv):
     rt : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    xyz = window[:, g2]
+    r1 = window[:, g1]
+    r2 = window[:, g2]
 
     l1 = g1.shape[0]
     l2 = g2.shape[0]
@@ -97,7 +99,7 @@ def _compute_rt_general_mic(window, g1, g2, bv):
         bv_inv = np.linalg.inv(bv[t])
         for i in prange(l1):
             for j in prange(l2):
-                s12 = bv_inv * xyz[t,i] - bv_inv * xyz[t,j]
+                s12 = bv_inv * r1[t,i] - bv_inv * r2[t,j]
                 s12 -= np.rint(s12)
                 r12 = bv[t] * s12
                 # rt[t,i,j] = np.linalg.norm(r12)
