@@ -1,7 +1,7 @@
 import math
 
 import numpy as np
-from numba import njit, float32, prange, guvectorize
+from numba import njit, float32, prange
 
 opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 
@@ -46,10 +46,6 @@ def _compute_rt_general_mic(window, g1, g2, bvt):
     l2 = g2.shape[0]
     lw = window.shape[0]
 
-    ri = np.zeros((4), dtype=float32)
-    rj = np.zeros((4), dtype=float32)
-    r12_arr = np.zeros((4), dtype=float32)
-
     rt_distances = np.zeros((lw, l1, l2, 3), dtype=float32)
     rt_distinct = np.zeros((lw, l1, l2), dtype=float32)
     rt_self = np.zeros((lw, l1), dtype=float32)
@@ -69,7 +65,6 @@ def _compute_rt_general_mic(window, g1, g2, bvt):
         for i in prange(l1):
             for j in prange(l2):
                 for coord in range(3):
-                    # r12[coord] = rj[coord] - ri[coord]
                     rt_distances[t, i, j, coord] = r1[i, coord] - xyz[t, j, coord]
                     rt_distances[t, i, j, coord] -= bv3[coord] * round(rt_distances[t, i, j, 2] * recip_box_size[2])
                     rt_distances[t, i, j, coord] -= bv2[coord] * round(rt_distances[t, i, j, 1] * recip_box_size[2])
@@ -128,22 +123,23 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     rt_distinct : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    rt0 = window[0]
-    r1 = rt0[g1]
-    xyz = window[:, g2]
+    r01 = window[0, g1]
+    rt2 = window[:, g2]
 
-    rt_distances = np.zeros((window.shape[0], g1.shape[0], g2.shape[0], 3), dtype=float32)
-    rt_distinct = np.zeros((window.shape[0], g1.shape[0], g2.shape[0]), dtype=float32)
-    rt_self = np.zeros((window.shape[0], g1.shape[0]), dtype=float32)
+    l1 = g1.shape[0]
+    l2 = g2.shape[0]
+    lw = window.shape[0]
+
+    rt_distances = np.zeros((lw, l1, l2, 3), dtype=float32)
+    rt_distinct = np.zeros((lw, l1, l2), dtype=float32)
+    rt_self = np.zeros((lw, l1), dtype=float32)
     rt_self[:] = 9999.0
 
-    frames = window.shape[0]
-
-    for t in prange(frames):
-        for i in prange(g1.shape[0]):
-            for j in prange(g2.shape[0]):
+    for t in prange(lw):
+        for i in prange(l1):
+            for j in prange(l2):
                 for coord in range(3):
-                    rt_distances[t,i,j,coord] = r1[i,coord] - xyz[t,j,coord]
+                    rt_distances[t,i,j,coord] = r01[i,coord] - rt2[t,j,coord]
                     rt_distances[t,i,j,coord] -= bv[t,coord,coord] * \
                                                     round(rt_distances[t,i,j,coord] / bv[t,coord,coord])
                     rt_distances[t,i,j,coord] = rt_distances[t,i,j,coord] ** 2
