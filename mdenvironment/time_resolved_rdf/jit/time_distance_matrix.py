@@ -85,8 +85,8 @@ def _compute_rt_general_mic(window, g1, g2, bv):
     rt : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    r1 = window[:, g1]
-    r2 = window[:, g2]
+    r1 = window[:,g1]
+    r2 = window[:,g2]
 
     l1 = g1.shape[0]
     l2 = g2.shape[0]

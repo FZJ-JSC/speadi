@@ -40,7 +40,7 @@ def _compute_rt_general_mic(window, g1, g2, bvt):
     """
     rt0 = window[0]
     r1 = rt0[g1]
-    xyz = window[:, g2]
+    xyz = window[:,g2]
 
     l1 = g1.shape[0]
     l2 = g2.shape[0]
@@ -64,15 +64,15 @@ def _compute_rt_general_mic(window, g1, g2, bvt):
 
         for i in prange(l1):
             for j in prange(l2):
-                for coord in range(3):
-                    rt_distances[t, i, j, coord] = r1[i, coord] - xyz[t, j, coord]
-                    rt_distances[t, i, j, coord] -= bv3[coord] * round(rt_distances[t, i, j, 2] * recip_box_size[2])
-                    rt_distances[t, i, j, coord] -= bv2[coord] * round(rt_distances[t, i, j, 1] * recip_box_size[2])
-                    rt_distances[t, i, j, coord] -= bv1[coord] * round(rt_distances[t, i, j, 0] * recip_box_size[0])
+                for coord in prange(3):
+                    rt_distances[t,i,j,coord] = r1[i,coord] - xyz[t,j,coord]
+                    rt_distances[t,i,j,coord] -= bv3[coord] * round(rt_distances[t,i,j,2] * recip_box_size[2])
+                    rt_distances[t,i,j,coord] -= bv2[coord] * round(rt_distances[t,i,j,1] * recip_box_size[2])
+                    rt_distances[t,i,j,coord] -= bv1[coord] * round(rt_distances[t,i,j,0] * recip_box_size[0])
 
                     min_dist2 = 9999.0
                     for x in prange(-1, 2):
-                        ra = rt_distances[t, i, j, coord] + bv1[coord] * x
+                        ra = rt_distances[t,i,j,coord] + bv1[coord] * x
                         for y in prange(-1, 2):
                             rb = ra + bv2[coord] * y
                             for z in prange(-1, 2):
@@ -81,13 +81,13 @@ def _compute_rt_general_mic(window, g1, g2, bvt):
                                 if dist2 <= min_dist2:
                                     min_dist2 = dist2
 
-                    rt_distinct[t, i, j] += min_dist2
+                    rt_distinct[t,i,j] += min_dist2
 
                 if g1[i] == g2[j]:
-                    rt_self[t, i] = math.sqrt(rt_distinct[t, i, j])
-                    rt_distinct[t, i, j] = 9999.0
+                    rt_self[t,i] = math.sqrt(rt_distinct[t,i,j])
+                    rt_distinct[t,i,j] = 9999.0
                 else:
-                    rt_distinct[t, i, j] = math.sqrt(rt_distinct[t, i, j])
+                    rt_distinct[t,i,j] = math.sqrt(rt_distinct[t,i,j])
 
     return rt_self, rt_distinct
 
@@ -123,8 +123,8 @@ def _compute_rt_ortho_mic(window, g1, g2, bv):
     rt_distinct : numpy.array
         Numpy array containing the time-distance matrix.
     """
-    r01 = window[0, g1]
-    rt2 = window[:, g2]
+    r01 = window[0,g1]
+    rt2 = window[:,g2]
 
     l1 = g1.shape[0]
     l2 = g2.shape[0]
@@ -181,7 +181,7 @@ def _compute_rt_mic_self(window, g1, bv):
     """
     rt0 = window[0]
     r1 = rt0[g1]
-    xyz = window[:, g1]
+    xyz = window[:,g1]
 
     rt_distances = np.zeros((window.shape[0], g1.shape[0], 3), dtype=float32)
     rt_self = np.zeros((window.shape[0], g1.shape[0]), dtype=float32)
