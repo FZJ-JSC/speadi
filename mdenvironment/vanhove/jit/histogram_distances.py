@@ -11,7 +11,6 @@ def _calculate_bin_edges(nbins, r_range):
     return edges
 
 
-# @njit
 @njit(['f8[:,:](f4[:,:],f4[:],UniTuple(f8,2),i8)'], **opts)
 def _compute_G_self(self_rt_array, window_unitcell_volumes, r_range, nbins):
     """
@@ -56,7 +55,6 @@ def _compute_G_self(self_rt_array, window_unitcell_volumes, r_range, nbins):
     return G_self
 
 
-# @njit
 @njit(['f8[:,:](f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], **opts)
 def _compute_G_distinct(distinct_rt_array, window_unitcell_volumes, r_range, nbins):
     """

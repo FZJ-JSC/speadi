@@ -3,8 +3,10 @@ from numba import jit, float64
 
 from ...histogram import _histogram
 
+opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=True)
 
-@jit(cache=True)
+
+@jit(**opts)
 def _compute_grt_numba(rt_array, window_unitcell_volumes, r_range, nbins, raw_counts):
     """
     Numba jitted and parallelised version of histogram of the time-distance matrix.

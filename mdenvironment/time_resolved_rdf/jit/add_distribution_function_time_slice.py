@@ -3,8 +3,10 @@ from numba import jit, prange
 from .time_distance_matrix import _compute_rt_ortho_mic, _compute_rt_general_mic
 from .histogram_distances import _compute_grt_numba
 
+opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=True)
 
-@jit(cache=True)
+
+@jit(**opts)
 def _jit_append_grts_ortho_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts):
     for i in prange(g1.shape[0]):
         for j in prange(g2.shape[0]):
@@ -13,7 +15,7 @@ def _jit_append_grts_ortho_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, c
     return g_rts
 
 
-@jit(cache=True)
+@jit(**opts)
 def _jit_append_grts_general_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts):
     for i in prange(g1.shape[0]):
         for j in prange(g2.shape[0]):
