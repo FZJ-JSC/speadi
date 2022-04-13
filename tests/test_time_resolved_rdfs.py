@@ -3,20 +3,24 @@ from itertools import product
 
 set_num_threads(2)
 
-refs = ['NA', 'CL']
+refs = ['NA']
 pbc = ['ortho', 'general']
-opt = [True, False]
-parameter_sets = list(product(refs, pbc, opt))
+JAX_AVAILABLE = [True, False]
+NUMBA_AVAILABLE = [True, False]
+parameter_sets = list(product(refs, pbc, JAX_AVAILABLE, NUMBA_AVAILABLE))
 
 
 def idfn(args):
-    return f'ref: {args[0]}, pbc: {args[1]}, opt: {args[2]}'
+    return f'ref: {args[0]}, pbc: {args[1]}, JAX_AVAILABLE: {args[2]}, NUMBA_AVAILABLE: {args[3]}'
 
 
 @pytest.fixture(scope='module', params=parameter_sets, ids=idfn)
 def mde_rdf(request, paths, nacl_top, mdtraj_groups):
-    r, grt = mde.trrdf(paths['traj_path'], mdtraj_groups[request.param[0]], mdtraj_groups['O'], pbc=request.param[1],
-                       opt=request.param[2], top=nacl_top, n_windows=20, window_size=10, stride=1, skip=0, r_range=(0.0, 1.2),
+    mde.JAX_AVAILABLE = request.param[2]
+    mde.NUMBA_AVAILABLE = request.param[3]
+
+    r, grt = mde.trrdf(paths['traj_path'], mdtraj_groups[request.param[0]], mdtraj_groups['O'], top=nacl_top,
+                       pbc=request.param[1], n_windows=20, window_size=10, skip=0, stride=1, r_range=(0.0, 1.2),
                        nbins=120)
     return r, grt, request.param[0]
 

@@ -10,14 +10,14 @@ def inspect(foo):
     sys.stdout = original_stdout
 
 
-from mdenvironment.vanhove.jit.add_distribution_function_time_slice import _jit_append_Grts_self
-inspect(_jit_append_Grts_self)
+from mdenvironment.vanhove.numba.add_distribution_function_time_slice import _append_Grts_self
+inspect(_append_Grts_self)
 
-from mdenvironment.vanhove.jit.add_distribution_function_time_slice import _jit_append_Grts_ortho_mic
-inspect(_jit_append_Grts_ortho_mic)
+from mdenvironment.vanhove.numba.add_distribution_function_time_slice import _append_Grts_ortho_mic
+inspect(_append_Grts_ortho_mic)
 
-from mdenvironment.vanhove.jit.add_distribution_function_time_slice import _jit_append_Grts_general_mic
-inspect(_jit_append_Grts_general_mic)
+from mdenvironment.vanhove.numba.add_distribution_function_time_slice import _append_Grts_general_mic
+inspect(_append_Grts_general_mic)
 
-# from mdenvironment.time_resolved_rdf.jit.add_distribution_function_time_slice import _jit_append_grts_ortho_mic as foo
+# from mdenvironment.time_resolved_rdf.numba.add_distribution_function_time_slice import _append_grts_mic as foo
 # inspect(foo)

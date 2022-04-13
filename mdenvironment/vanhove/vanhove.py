@@ -4,18 +4,10 @@ G(r,t) between two groups of particles. Groups can also consist of single
 particles.
 """
 
-from .tools.construct_arrays import _construct_results_array
-from .tools.calculate_according_to_inputs import _calculate_according_to_inputs
-from ..common_tools.check_numba import check_numba
-
-NUMBA_AVAILABLE = check_numba()
-if NUMBA_AVAILABLE:
-    from numba import (get_num_threads, set_num_threads)
-    set_num_threads(get_num_threads())
+from .utils import _construct_results_array, _calculate_according_to_inputs
 
 
-def vanhove(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE,
-            n_windows=100, window_size=200, overlap=False, skip=1, stride=10,
+def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, overlap=False, skip=1, stride=10,
             r_range=(0.0, 2.0), nbins=400, self_only=False):
     """
     Calculate $G(r,t)$ for two groups given in a trajectory.
@@ -79,13 +71,16 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE,
     -------
     r : np.array
         bin centers of G(r,t)
+    G_self  : np.array
+        averaged function values of $G_{s}(r,t)$ for each time from t=0 considered
     G_distinct  : np.array
-        averaged function values of G(r,t) for each time from t=0 considered
+        averaged function values of $G_{d}(r,t)$ for each time from t=0 considered
     """
     G_self, G_distinct, g1, g2 = _construct_results_array(g1, g2, nbins, stride, window_size)
 
-    r, G_self, G_distinct, n_windows = _calculate_according_to_inputs(G_self, G_distinct, g1, g2, n_windows, nbins, opt, overlap, pbc, r_range, self_only, skip,
-                                                         stride, top, traj, window_size)
+    r, G_self, G_distinct, n_windows = _calculate_according_to_inputs(G_self, G_distinct, g1, g2, n_windows, nbins,
+                                                                      overlap, pbc, r_range, self_only, skip, stride,
+                                                                      top, traj, window_size)
     G_self = G_self / n_windows
     G_distinct = G_distinct / n_windows
     return r, G_self, G_distinct

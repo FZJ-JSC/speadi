@@ -4,17 +4,11 @@ two groups of particles for specified windows along a trajectory g(r,t).
 Groups can also consist of single particles.
 """
 
-from .tools.utils import _construct_results_array, _calculate_according_to_inputs
-from ..common_tools.check_numba import check_numba
-
-NUMBA_AVAILABLE = check_numba()
-if NUMBA_AVAILABLE:
-    from numba import (get_num_threads, set_num_threads)
-    set_num_threads(get_num_threads())
+from .utils import _construct_results_array, _calculate_according_to_inputs
 
 
-def trrdf(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE, n_windows=100, window_size=200, skip=1, stride=10,
-          r_range=(0.0, 2.0), nbins=400, raw_counts=False):
+def trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, skip=1, stride=10, r_range=(0.0, 2.0),
+          nbins=400, raw_counts=False):
     """
     Calculate g(r,t) for two groups given in a trajectory. g(r) is
     calculated for each frame in the trajectory, then averaged over
@@ -67,7 +61,7 @@ def trrdf(traj, g1, g2, top=None, pbc='ortho', opt=NUMBA_AVAILABLE, n_windows=10
     """
     g_rt, g1, g2 = _construct_results_array(g1, g2, n_windows, nbins)
 
-    r, g_rt = _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, opt, pbc, r_range, raw_counts, skip,
-                                             stride, top, traj, window_size)
+    r, g_rt = _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range, raw_counts, skip, stride,
+                                             top, traj, window_size)
 
     return r, g_rt

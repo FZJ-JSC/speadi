@@ -6,7 +6,7 @@ from numba import njit, float32, prange
 opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 
 
-@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
+@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i4[:],i4[:],f4[:,:,:])'], **opts)
 def _rtau_general_mic(window, g1, g2, bvt):
     """
     Numba jitted and parallelised version of function to calculate
@@ -92,7 +92,7 @@ def _rtau_general_mic(window, g1, g2, bvt):
     return rt_self, rt_distinct
 
 
-@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
+@njit(['Tuple((f4[:,:],f4[:,:,:]))(f4[:,:,:],i4[:],i4[:],f4[:,:,:])'], **opts)
 def _rtau_ortho_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -154,7 +154,7 @@ def _rtau_ortho_mic(window, g1, g2, bv):
     return rt_self, rt_distinct
 
 
-@njit(['f4[:,:](f4[:,:,:],i8[:],f4[:,:,:])'], **opts)
+@njit(['f4[:,:](f4[:,:,:],i4[:],f4[:,:,:])'], **opts)
 def _rtau_ortho_mic_self(window, g1, bv):
     """
     Numba jitted and parallelised version of function to calculate

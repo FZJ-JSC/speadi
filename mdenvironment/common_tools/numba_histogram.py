@@ -9,9 +9,12 @@ https://numba.pydata.org/numba-examples/examples/density_estimation/histogram/re
 """
 
 import numpy as np
-from numba import njit, float32
+from numba import njit, float32, int32
 
-@njit
+opts = dict(parallel=False, fastmath=True, nogil=True, cache=False, debug=False)
+
+
+@njit(['i4(f4,f4[:])'], **opts)
 def _compute_bin(x, bin_edges):
     """
     Compute the bin for a given value x.
@@ -40,12 +43,13 @@ def _compute_bin(x, bin_edges):
     bin = int(n * (x - a_min) / (a_max - a_min))
 
     if bin < 0 or bin >= n:
-        return None
+        # return None
+        return 9999
     else:
         return bin
 
 
-@njit
+@njit(['i4[:](f4[:],f4[:])', 'i4[:](f4[:,:],f4[:])', 'i4[:](f4[:,:,:],f4[:])'], **opts)
 def _histogram(a, bin_edges):
     """
     Compute the histogram for an array a, given an array of bin edges.
@@ -61,13 +65,12 @@ def _histogram(a, bin_edges):
     -------
     hist : numpy.array
     """
-    hist = np.zeros((bin_edges.shape[0],), dtype=float32)
+    hist = np.zeros((bin_edges.shape[0],), dtype=int32)
 
     for x in a.flat:
         bin = _compute_bin(x, bin_edges)
-        if bin is not None:
-            hist[int(bin)] += 1
+        # if bin is not None:
+        if bin < 9999:
+                hist[int(bin)] += 1
 
     return hist[:-1]
-
-

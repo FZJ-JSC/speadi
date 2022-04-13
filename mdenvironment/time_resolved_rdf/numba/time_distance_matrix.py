@@ -6,7 +6,7 @@ from numba import njit, float32, prange
 opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
+@njit(['f4[:,:,:](f4[:,:,:],i4[:],i4[:],f4[:,:,:])'], **opts)
 def _rt_ortho_mic(window, g1, g2, bv):
     """
     Numba jitted and parallelised version of function to calculate
@@ -59,7 +59,7 @@ def _rt_ortho_mic(window, g1, g2, bv):
     return rt
 
 
-@njit(['f4[:,:,:](f4[:,:,:],i8[:],i8[:],f4[:,:,:])'], **opts)
+@njit(['f4[:,:,:](f4[:,:,:],i4[:],i4[:],f4[:,:,:])'], **opts)
 def _rt_general_mic(window, g1, g2, bvt):
     """
     Numba jitted and parallelised version of function to calculate

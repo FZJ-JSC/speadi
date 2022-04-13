@@ -1,24 +1,21 @@
 import numpy as np
-from numba import njit, float32, prange
+from numba import njit, float32
 
-from ...histogram import _histogram
+from ...common_tools.numba_histogram import _histogram
 
+pi = float32(np.pi)
 opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 
-@njit
-def _calculate_bin_edges(nbins, r_range):
-    edges = np.linspace(r_range[0], r_range[1], nbins + 1)
-    return edges
 
-
-@njit(['f8[:,:](f4[:,:],f4[:],UniTuple(f8,2),i8)'], **opts)
-def _compute_G_self(self_rt_array, window_unitcell_volumes, r_range, nbins):
+@njit(['f4[:,:](f4[:,:],f4[:,:],f4[:],f4[:])'], **opts)
+def _compute_G_self(self_rt_array, G_self, window_unitcell_volumes, bin_edges):
     """
     Numba jitted and parallelised version of histogram of the time-distance
     matrix.
 
     Parameters
     ----------
+    G_self
     self_rt_array : numpy.array
         Time-distance matrix from which to calculate the histogram.
     window_unitcell_volumes : numpy.array
@@ -39,30 +36,26 @@ def _compute_G_self(self_rt_array, window_unitcell_volumes, r_range, nbins):
     Ni = self_rt_array.shape[1]
     Nj = self_rt_array.shape[1]
     n_frames = self_rt_array.shape[0]
-    G_self = np.empty((n_frames, nbins), dtype=float32)
-    # G_self = np.empty((n_frames, nbins), dtype=np.float32)
-    edges = _calculate_bin_edges(nbins, r_range)
-    for t in range(n_frames):
-        G_self[t] = _histogram(self_rt_array[t], edges)
 
-    r = 0.5 * (edges[1:] + edges[:-1])
-    r_vol = 4.0/3.0 * np.pi * (np.power(edges[1:], 3) - np.power(edges[:-1], 3))
+    r_vol = 4.0/3.0 * pi * (bin_edges[1:]**3 - bin_edges[:-1]**3)
     Nj_density = Nj / window_unitcell_volumes.mean()
-
     norm = Nj_density * r_vol * Ni
-    G_self = G_self / norm
 
-    return G_self
+    for t in range(n_frames):
+        G_self[t] += _histogram(self_rt_array[t], bin_edges) / norm
+
+    return G_self.astype(np.float32)
 
 
-@njit(['f8[:,:](f4[:,:,:],f4[:],UniTuple(f8,2),i8)'], **opts)
-def _compute_G_distinct(distinct_rt_array, window_unitcell_volumes, r_range, nbins):
+@njit(['f4[:,:](f4[:,:,:],f4[:,:],f4[:],f4[:])'], **opts)
+def _compute_G_distinct(distinct_rt_array, G_distinct, window_unitcell_volumes, bin_edges):
     """
     Numba jitted and parallelised version of histogram of the time-distance
     matrix.
 
     Parameters
     ----------
+    G_distinct
     distinct_rt_array : numpy.array
         Time-distance matrix from which to calculate the histogram.
     window_unitcell_volumes : numpy.array
@@ -83,17 +76,12 @@ def _compute_G_distinct(distinct_rt_array, window_unitcell_volumes, r_range, nbi
     Ni = distinct_rt_array.shape[1]
     Nj = distinct_rt_array.shape[2]
     n_frames = distinct_rt_array.shape[0]
-    G_distinct = np.empty((n_frames, nbins), dtype=float32)
-    # G_distinct = np.empty((n_frames, nbins), dtype=np.float32)
-    edges = _calculate_bin_edges(nbins, r_range)
-    for t in range(n_frames):
-        G_distinct[t] = _histogram(distinct_rt_array[t], edges)
 
-    r = 0.5 * (edges[1:] + edges[:-1])
-    r_vol = 4.0/3.0 * np.pi * (np.power(edges[1:], 3) - np.power(edges[:-1], 3))
+    r_vol = 4.0/3.0 * pi * (bin_edges[1:]**3 - bin_edges[:-1]**3)
     Nj_density = Nj / window_unitcell_volumes.mean()
-
     norm = Nj_density * r_vol * Ni
-    G_distinct = G_distinct / norm
 
-    return G_distinct
+    for t in range(n_frames):
+        G_distinct[t] += _histogram(distinct_rt_array[t], bin_edges) / norm
+
+    return G_distinct.astype(np.float32)
