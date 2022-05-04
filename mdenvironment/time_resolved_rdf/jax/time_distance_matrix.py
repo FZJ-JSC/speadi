@@ -80,7 +80,17 @@ def _rt_general_mic(window, g1, g2, union, bv):
     """
     r1 = window[:, g1]
     r2 = window[:, g2]
-    bv_inv = np.linalg.inv(bv)
+    # bv_inv = np.linalg.inv(bv)
+
+    ## Reduce box vectors to a `reduced' basis
+    bv1 = bv[:, 0]
+    bv2 = bv[:, 1]
+    bv3 = bv[:, 2]
+
+    bv3 -= bv2 * np.round(bv3[:, 1] / bv2[:, 1])[:, np.newaxis]
+    bv3 -= bv1 * np.round(bv3[:, 0] / bv1[:, 0])[:, np.newaxis]
+    bv2 -= bv1 * np.round(bv2[:, 0] / bv1[:, 0])[:, np.newaxis]
+    bv_inv = np.linalg.inv(np.array([bv1.T, bv2.T, bv3.T]).T)
 
     s1 = bv_inv[:, np.newaxis, :, :] * r1[:, :, :, np.newaxis]
     s2 = bv_inv[:, np.newaxis, :, :] * r2[:, :, :, np.newaxis]

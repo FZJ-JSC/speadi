@@ -40,7 +40,17 @@ def _rtau_general_mic(window, g1, g2, union, bv):
     """
     r01 = window[0, g1]
     rt2 = window[:, g2]
-    bv_inv = np.linalg.inv(bv)
+    # bv_inv = np.linalg.inv(bv)
+
+    ## Reduce box vectors to a `reduced' basis
+    bv1 = bv[:, 0]
+    bv2 = bv[:, 1]
+    bv3 = bv[:, 2]
+
+    bv3 -= bv2 * np.round(bv3[:, 1] / bv2[:, 1])[:, np.newaxis]
+    bv3 -= bv1 * np.round(bv3[:, 0] / bv1[:, 0])[:, np.newaxis]
+    bv2 -= bv1 * np.round(bv2[:, 0] / bv1[:, 0])[:, np.newaxis]
+    bv_inv = np.linalg.inv(np.array([bv1.T, bv2.T, bv3.T]).T)
 
     s01 = bv_inv[0, np.newaxis, :, :] * r01[:, :, np.newaxis]
     st2 = bv_inv[:, np.newaxis, :, :] * rt2[:, :, :, np.newaxis]
