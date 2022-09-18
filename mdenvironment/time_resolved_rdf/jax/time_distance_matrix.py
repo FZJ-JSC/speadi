@@ -41,7 +41,7 @@ def _rt_ortho_mic(window, g1, g2, union, bv):
     r12 = np.sqrt(r12)
 
     # remove self interaction part of g(r,t) by making the distance i == j large
-    r12.at[:, union[0], union[1]].set(9999.0)
+    r12 = r12.at[:, union[0], union[1]].set(9999.0)
 
     return r12
 
@@ -103,6 +103,6 @@ def _rt_general_mic(window, g1, g2, union, bv):
     r12 = np.sqrt(r12)
 
     # remove self interaction part of g(r,t) by making the distance i == j large
-    r12.at[:, union[0], union[1]].set(9999.0)
+    r12 = r12.at[:, union[0], union[1]].set(9999.0)
 
     return r12

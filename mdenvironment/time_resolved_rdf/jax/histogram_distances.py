@@ -7,7 +7,7 @@ from ...common_tools.jax_histogram import _histogram
 @jit
 def _compute_grt(rt_array, window_unitcell_volumes, bin_edges):
     """
-    Numba jitted and parallelised version of histogram of the time-distance matrix.
+    JAX/XLA jitted and parallelised version histogram of the time-distance matrix.
 
     Parameters
     ----------

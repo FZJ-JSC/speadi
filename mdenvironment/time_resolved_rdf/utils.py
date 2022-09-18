@@ -76,13 +76,6 @@ def _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range,
     if isinstance(traj, str) and isinstance(top, md.core.topology.Topology):
         g1_lens = np.array([len(x) for x in g1], dtype=np.int32)
         g2_lens = np.array([len(x) for x in g2], dtype=np.int32)
-        g1_array = np.zeros((len(g1), g1_lens.max()), dtype=np.int32)
-        g2_array = np.zeros((len(g2), g2_lens.max()), dtype=np.int32)
-
-        for i in range(g1_array.shape[0]):
-            g1_array[i, :len(g1[i])] = g1[i]
-        for i in range(g2_array.shape[0]):
-            g2_array[i, :len(g2[i])] = g2[i]
 
         unions = get_all_unions(g1, g2, g1_lens, g2_lens)
 
@@ -99,7 +92,7 @@ def _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range,
                     window = f.read_as_traj(n_frames=window_size, stride=stride)
                 else:
                     window = f.read_as_traj(top, n_frames=int(window_size / stride), stride=stride)
-                g_rt = _append_grts(g_rt, n, window.xyz, g1_array, g2_array, window.unitcell_vectors,
+                g_rt = _append_grts(g_rt, n, window.xyz, g1, g2, window.unitcell_vectors,
                                     window.unitcell_volumes, r_range, nbins, pbc, raw_counts, unions, bin_edges,
                                     _append_grts_mic, g1_lens=g1_lens, g2_lens=g2_lens)
 
