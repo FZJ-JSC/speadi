@@ -10,9 +10,8 @@ opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
 @jit(**opts)
 def _append_grts_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts,
                      unions, bin_edges, orthogonal=False):
-
-    for i in prange(len(g1)):
-        for j in prange(len(g2)):
+    for i in prange(g1_lens.shape[0]):
+        for j in prange(g2_lens.shape[0]):
             if orthogonal:
                 rt_array = _rt_ortho_mic(xyz, g1[i].astype('int32'), g2[j].astype('int32'), cuvec)
             else:
