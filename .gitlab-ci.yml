@@ -1,15 +1,16 @@
-image: python:3.7
+image: python:3.9
 
 cache:
   paths:
-    - .cache/pip
     - venv/
 
 before_script:
   - python -V  # Print out python version for debugging
+  - pip install -U setuptools
   - pip install virtualenv
   - virtualenv venv
   - source venv/bin/activate
+  - pip install -U setuptools
   - pip install -e '.[all]'
   - pip install pytest pytest-cov
 
