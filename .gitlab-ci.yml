@@ -27,4 +27,7 @@ pytest:
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
-      cobertura: coverage.xml
+      coverage_report:
+        coverage_format: cobertura
+        path: build/cobertura.xml
+
