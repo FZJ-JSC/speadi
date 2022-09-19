@@ -2,7 +2,7 @@ import jax.numpy as np
 from jax import jit
 
 from .time_distance_matrix import _rt_ortho_mic, _rt_general_mic
-from .histogram_distances import _compute_grt
+from .histogram_distances import _compute_grt, _compute_nrt
 
 
 def _append_grts_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins, raw_counts, unions,
@@ -20,7 +20,10 @@ def _append_grts_ortho_mic(g_rts, n, xyz, g1, g2, cuvec, cuvol, raw_counts, unio
         for j in range(len(g2)):
             union = unions[str(i)][str(j)]
             rt_array = _rt_ortho_mic(xyz, g1[i], g2[j], union, cuvec)
-            g_rts = g_rts.at[i, j, n].set(_compute_grt(rt_array, cuvol, bin_edges))
+            if raw_counts:
+                g_rts = g_rts.at[i, j, n].set(_compute_nrt(rt_array, cuvol, bin_edges))
+            else:
+                g_rts = g_rts.at[i, j, n].set(_compute_grt(rt_array, cuvol, bin_edges))
 
     return g_rts
 
@@ -31,6 +34,9 @@ def _append_grts_general_mic(g_rts, n, xyz, g1, g2, cuvec, cuvol, raw_counts, un
         for j in range(len(g2)):
             union = unions[str(i)][str(j)]
             rt_array = _rt_general_mic(xyz, g1[i], g2[j], union, cuvec)
-            g_rts = g_rts.at[i, j, n].set(_compute_grt(rt_array, cuvol, bin_edges))
+            if raw_counts:
+                g_rts = g_rts.at[i, j, n].set(_compute_nrt(rt_array, cuvol, bin_edges))
+            else:
+                g_rts = g_rts.at[i, j, n].set(_compute_grt(rt_array, cuvol, bin_edges))
 
     return g_rts

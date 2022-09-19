@@ -38,3 +38,34 @@ def _compute_grt(rt_array, window_unitcell_volumes, bin_edges):
     g_rt = g_rt / norm / n_frames
 
     return g_rt
+
+
+@jit
+def _compute_nrt(rt_array, window_unitcell_volumes, bin_edges):
+    """
+    JAX/XLA jitted and parallelised version histogram of the time-distance matrix,
+    but without norming, giving the raw n(r,t) function.
+
+    Parameters
+    ----------
+    rt_array : numpy.ndarray
+        Time-distance matrix from which to calculate the histogram.
+    bin_edges : numpy.ndarray
+        Array containing the bin edges of the histogram that results in g(r,t).
+    window_unitcell_volumes : numpy.ndarray
+        Array with volumes of each frame considered.
+
+    Returns
+    -------
+    r : numpy.ndarray
+        bin centers of g(r,t)
+    g_rt : numpy.ndarray
+        function values of g(r,t) for each time from t=0 considered, not averaged over whole trajectory.
+    """
+    n_frames = rt_array.shape[0]
+    n_rt = _histogram(rt_array, bin_edges)
+
+    # Average over frames
+    n_rt = n_rt / n_frames
+
+    return n_rt
