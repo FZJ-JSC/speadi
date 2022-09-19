@@ -41,6 +41,19 @@ def double_refs_mde_rdf(request, paths, nacl_top, mdtraj_groups):
     return r, grt, request.param[0]
 
 
+@pytest.fixture(scope='module', params=double_ref_params, ids=idfn)
+def quadruple_refs_mde_rdf(request, paths, nacl_top, mdtraj_groups):
+    mde.JAX_AVAILABLE = request.param[2]
+    mde.NUMBA_AVAILABLE = request.param[3]
+    refs = request.param[0]
+    ref_groups = [mdtraj_groups[ref] for ref in refs]
+
+    r, grt = mde.trrdf(paths['traj_path'], ref_groups, [mdtraj_groups['O'],mdtraj_groups['NA']], top=nacl_top,
+                       pbc=request.param[1], n_windows=20, window_size=10, skip=0, stride=1, r_range=(0.0, 1.2),
+                       nbins=120)
+    return r, grt, request.param[0]
+
+
 def test_rdf_binning_gmx(mde_rdf, gmx_rdf):
     r, _, ref = mde_rdf
     gmx_r, _ = gmx_rdf
@@ -77,6 +90,16 @@ def test_double_rdf_results_mdtraj(double_refs_mde_rdf, mdtraj_rdf):
     _, mdtraj_gr = mdtraj_rdf
     gr1 = np.mean(grt[0], axis=(0,1))
     gr2 = np.mean(grt[1], axis=(0,1))
+
+    np.testing.assert_allclose(gr1, mdtraj_gr[refs[0]], rtol=5e-2)
+    np.testing.assert_allclose(gr2, mdtraj_gr[refs[1]], rtol=5e-2)
+
+
+def test_quadruple_rdf_results_mdtraj(quadruple_refs_mde_rdf, mdtraj_rdf):
+    _, grt, refs = quadruple_refs_mde_rdf
+    _, mdtraj_gr = mdtraj_rdf
+    gr1 = np.mean(grt[0][0], axis=(0))
+    gr2 = np.mean(grt[1][0], axis=(0))
 
     np.testing.assert_allclose(gr1, mdtraj_gr[refs[0]], rtol=5e-2)
     np.testing.assert_allclose(gr2, mdtraj_gr[refs[1]], rtol=5e-2)
