@@ -5,10 +5,7 @@ objects together with MDTraj groups as input, and return N*t*r-dimensional array
 reference groups at times t for distances of r.
 """
 
-try:
-    from importlib.metadata import version as get_pkg_version
-except ModuleNotFoundError:
-    from importlib_metadata import version as get_pkg_version
+from importlib_metadata import version as get_pkg_version
 
 __version__ = get_pkg_version('MDEnvironment')
 
