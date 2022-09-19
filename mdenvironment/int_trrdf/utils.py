@@ -8,7 +8,7 @@ import numpy as np
 
 def _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE):
     if JAX_AVAILABLE:
-        from .jax.add_distribution_function_time_slice import _append_grts_mic
+        from .jax.add_distribution_function_time_slice import _append_nrts_mic
     else:
         if NUMBA_AVAILABLE:
             # Remove OpenMP warnings caused by the Numba threading layer
@@ -19,17 +19,18 @@ def _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE):
             from mdenvironment import NUMBA_THREADS
             set_num_threads(NUMBA_THREADS)
 
-            from .numba.add_distribution_function_time_slice import _append_grts_mic
+            from .numba.add_distribution_function_time_slice import _append_nrts_mic
         else:
-            from .vectorized.add_distribution_function_time_slice import _append_grts_mic
+            from .vectorized.add_distribution_function_time_slice import _append_nrts_mic
 
-    return _append_grts_mic
+    return _append_nrts_mic
 
 
 def _construct_results_array(g1, g2, n_windows, nbins):
     """
-    Pre-allocates the array to store the results of each window, g_rts, according to the parameters supplied to `trrdf()`.
-    Returns the group index arrays as lists of arrays if not given to `trrdf()` as such.
+    Pre-allocates the array to store the results of each window, n_rts, according to the parameters
+    supplied to `int_trrdf()`. Returns the group index arrays as lists of arrays if not given to
+    `int_trrdf()` as such.
 
     Parameters
     ----------
@@ -40,38 +41,38 @@ def _construct_results_array(g1, g2, n_windows, nbins):
 
     Returns
     -------
-    g_rts
+    n_rts
     g1
     g2
     """
     if isinstance(g1, list) and isinstance(g2, list):
-        g_rts = np.zeros((len(g1), len(g2), n_windows, nbins), dtype=np.float32)
+        n_rts = np.zeros((len(g1), len(g2), n_windows, nbins), dtype=np.float32)
     elif isinstance(g1, list) and not isinstance(g2, list):
-        g_rts = np.zeros((len(g1), 1, n_windows, nbins), dtype=np.float32)
+        n_rts = np.zeros((len(g1), 1, n_windows, nbins), dtype=np.float32)
         g2 = [g2]
     elif not isinstance(g1, list) and isinstance(g2, list):
-        g_rts = np.zeros((1, len(g2), n_windows, nbins), dtype=np.float32)
+        n_rts = np.zeros((1, len(g2), n_windows, nbins), dtype=np.float32)
         g1 = [g1]
     else:
-        g_rts = np.zeros((1, 1, n_windows, nbins), dtype=np.float32)
+        n_rts = np.zeros((1, 1, n_windows, nbins), dtype=np.float32)
         g1 = [g1]
         g2 = [g2]
-    return g_rts, g1, g2
+    return n_rts, g1, g2
 
 
-def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins, pbc, unions, bin_edges,
-                 _append_grts_mic, g1_lens=1, g2_lens=1):
+def _append_nrts(n_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins, pbc, unions, bin_edges,
+                 _append_nrts_mic, g1_lens=1, g2_lens=1):
     if pbc == 'ortho':
-        g_rts = _append_grts_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins,
+        n_rts = _append_nrts_mic(n_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins,
                                  unions, bin_edges, orthogonal=True)
     else:
-        g_rts = _append_grts_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins,
+        n_rts = _append_nrts_mic(n_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_range, nbins,
                                  unions, bin_edges, orthogonal=False)
 
-    return g_rts
+    return n_rts
 
 
-def _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range, skip, stride, top, traj,
+def _calculate_according_to_inputs(g1, g2, n_rt, n_windows, nbins, pbc, r_range, skip, stride, top, traj,
                                    window_size):
     if isinstance(traj, str) and isinstance(top, md.core.topology.Topology):
         g1_lens = np.array([len(x) for x in g1], dtype=np.int32)
@@ -83,7 +84,7 @@ def _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range,
         r = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
         from mdenvironment import JAX_AVAILABLE, NUMBA_AVAILABLE
-        _append_grts_mic = _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE)
+        _append_nrts_mic = _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE)
 
         with md.open(traj) as f:
             f.seek(skip)
@@ -92,11 +93,11 @@ def _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range,
                     window = f.read_as_traj(n_frames=window_size, stride=stride)
                 else:
                     window = f.read_as_traj(top, n_frames=int(window_size / stride), stride=stride)
-                g_rt = _append_grts(g_rt, n, window.xyz, g1, g2, window.unitcell_vectors,
+                n_rt = _append_nrts(n_rt, n, window.xyz, g1, g2, window.unitcell_vectors,
                                     window.unitcell_volumes, r_range, nbins, pbc, unions, bin_edges,
-                                    _append_grts_mic, g1_lens=g1_lens, g2_lens=g2_lens)
+                                    _append_nrts_mic, g1_lens=g1_lens, g2_lens=g2_lens)
 
     else:
         raise TypeError('You must input either the path to a trajectory together with a MDTraj topology instance, '
                         'or an MDTraj trajectory, or a generator of such.')
-    return r, g_rt
+    return r, n_rt

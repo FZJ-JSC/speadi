@@ -35,4 +35,5 @@ else:
 
 from .patches import get_patches
 from .time_resolved_rdf.trrdf import trrdf
+from .int_trrdf.int_trrdf import int_trrdf
 from .vanhove.vanhove import vanhove
