@@ -1,5 +1,5 @@
-from numba import jit, njit
-from ...common_tools.numba_histogram import _histogram
+from numba import njit
+from ...common_tools.numba.numba_histogram import _histogram
 
 opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=True)
 

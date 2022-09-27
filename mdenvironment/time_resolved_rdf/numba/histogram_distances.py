@@ -1,5 +1,5 @@
-from numba import jit, njit
-from ...common_tools.numba_histogram import _histogram
+from numba import njit
+from ...common_tools.numba.numba_histogram import _histogram
 
 import numpy as np
 

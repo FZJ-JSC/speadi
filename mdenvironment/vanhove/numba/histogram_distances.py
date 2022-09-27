@@ -1,7 +1,7 @@
 import numpy as np
 from numba import njit, float32
 
-from ...common_tools.numba_histogram import _histogram
+from ...common_tools.numba.numba_histogram import _histogram
 
 pi = float32(np.pi)
 opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)

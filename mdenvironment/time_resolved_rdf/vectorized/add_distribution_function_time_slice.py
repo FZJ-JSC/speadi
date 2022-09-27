@@ -1,4 +1,4 @@
-from .time_distance_matrix import _rt_mic
+from ...common_tools.vectorized.time_distance_matrix import _rt_mic
 from .histogram_distances import _compute_grt
 
 

@@ -1,7 +1,6 @@
-import jax.numpy as np
 from jax import jit
 
-from ...common_tools.jax_histogram import _histogram
+from ...common_tools.jax.jax_histogram import _histogram
 
 
 @jit

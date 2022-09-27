@@ -1,7 +1,6 @@
-import jax.numpy as np
 from jax import jit
 
-from .time_distance_matrix import _rt_ortho_mic, _rt_general_mic
+from ...common_tools.jax.time_distance_matrix import _rt_ortho_mic, _rt_general_mic
 from .histogram_distances import _compute_grt
 
 

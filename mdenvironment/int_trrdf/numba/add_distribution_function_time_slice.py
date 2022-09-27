@@ -1,7 +1,6 @@
 from numba import jit, prange
-import numpy as np
 
-from .time_distance_matrix import _rt_ortho_mic, _rt_general_mic
+from ...common_tools.numba.time_distance_matrix import _rt_ortho_mic, _rt_general_mic
 from .histogram_distances import _compute_nrt_numba
 
 opts = dict(parallel=True, fastmath=True, nogil=True, cache=False, debug=False)
