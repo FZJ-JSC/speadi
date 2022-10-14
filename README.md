@@ -10,10 +10,16 @@ MDEnvironment provides the user tools with which to characterise the local chemi
 
 # Quick install
 
-For installation into the default python environment, run the following in a terminal:
+For installation into the default python environment, run the following pip command in a terminal:
 
 ```bash
-pip install --user git+https://pip_token:F4ZJGgGyyb62dP34xMqo@gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment.git
+pip install git+https://github.com/EmileDeBruyn/MDEnvironment.git
+```
+
+Or, to install just into the current user's local environment, add the `--user` option:
+
+```bash
+pip install --user git+https://github.com/EmileDeBruyn/MDEnvironment.git
 ```
 
 # RDFs
@@ -44,32 +50,44 @@ VHFs of ions around single atoms in do not require sample frequencies above thos
 
 Installation is provided easily through `pip`. It can be installed either directly as a package, or as an editable source.
 
-## Direct installation
+## Acceleration
 
-For installation into the default python environment, run the following in a terminal:
+As a default, MDEnvironment doesn't install `JAX` or `Numba`, but uses these if detected in the same Python environment that `MDEnvironment` is installed into.
 
-```bash
-pip install git+https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment
-```
-
-To install for just the current user, add the `--user` option:
+To install `JAX` and `jaxlib` along with `MDEnvironment`, simply add the `jax` extra to `pip`:
 
 ```bash
-pip install --user git+https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment
+pip install 'git+https://github.com/EmileDeBruyn/MDEnvironment.git#egg=MDEnvironment[jax]'
 ```
+
+Note that by default, installing `jax` using pip (through pypi) only enables CPU acceleration. To enable GPU or TPU acceleration, please see <https://github.com/google/jax> for details on how to obtain a `JAX` installation for the specific `CuDNN` version in your environment.
+
+To install `Numba` along with `MDEnvironment`, simply add the `numba` extra to `pip`:
+
+```bash
+pip install 'git+https://github.com/EmileDeBruyn/MDEnvironment.git#egg=MDEnvironment[numba]'
+```
+
+Or, to install both `jax` and `numba` alongside `MDEnvironment`, add the `all` extra to `pip`:
+
+```bash
+pip install 'git+https://github.com/EmileDeBruyn/MDEnvironment.git#egg=MDEnvironment[all]'
+```
+
+The `--user` pip option may be added to all of these commands to install just for the current user.
 
 ## Editable source installation
 
 Open up a terminal. Navigate to the location you want to clone this repository. Then, run the following to clone the entire repository:
 
 ```bash
-git clone ssh://git@gitlab.jsc.fz-juelich.de:10022/debruyn1/mdenvironment
+git clone https://github.com/EmileDeBruyn/MDEnvironment
 ```
 
-Then, install locally using `pip` (after entering the package sub-directory):
+Then, install locally using `pip` by adding the `-e` option:
 
 ```bash
-cd mdenvironment/ && pip install -e .
+pip install -e MDEnvironment 
 ```
 
 ## [WIP] Usage
@@ -114,25 +132,30 @@ r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, w
 
 ## To-Do
 
--   [ ] generate plots for documentation as showcase and teaser
+-   [X] generate plots for documentation as showcase and teaser
 -   [X] implement matrix based calculation of MIC convention for general PBC
--   [ ] re-write MIC convention for general PBC in for-loops for `Numba`
--   [ ] add defaults to docstrings
--   [ ] change `skip` parameter to `from` - `till` (or some variation of wording)
--   [ ] investigate use `JAX` or `QNumeric` as alternatives to `Numba`
--   [ ] investigate implementation of `CUDA` kernels for GPU acceleration using `Numba`
+-   [X] re-write MIC convention for general PBC in for-loops for `Numba`
+-   [X] add defaults to docstrings
+-   [X] change `skip` parameter to `from` - `till` (or some variation of wording)
+-   [X] investigate use `JAX` or `QNumeric` as alternatives to `Numba`
+-   [X] investigate implementation of `CUDA` kernels for GPU acceleration using `Numba`
 
 ## [WIP] Citation
 
 Add Zenodo link as soon as a first public release is planned to coincide with open-sourcing.
 
+## Acknowledgments
+
+We gratefully acknowledge the following institutions for their support in the development of MDEnvironment and for granting compute time to develop and test MDEnvironment.
+
+-   Gauss Centre for Supercomputing e.V. (www.gauss-centre.eu) and the John von Neumann Institute for Computing (NIC)
+
+on the GCS Supercomputer JUWELS at Jülich Supercomputing Centre (JSC)
+
+-   HDS-LEE Helmholtz Graduate School
+
 ## Contributors
 
 -   Emile de Bruyn
 
-## [WIP] License
-
-### To-dos
-
--   add LGPL license
--   check with colleagues and legal department before publication
+## License
