@@ -4,7 +4,8 @@ function (RDF) between two groups of particles for specified windows
 along a trajectory n(r,t). Groups can also consist of single particles.
 """
 
-from .utils import _construct_results_array, _calculate_according_to_inputs
+from .utils import _calculate_according_to_inputs
+from ..common_tools.result_arrays import _trrdf_results as _construct_results_array
 
 
 def int_trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, skip=1, stride=10, r_range=(0.0, 2.0),

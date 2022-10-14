@@ -31,45 +31,6 @@ def _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE):
             return _append_Grts_ortho_mic, _append_Grts_general_mic, None
 
 
-def _construct_results_array(g1, g2, nbins, stride, window_size):
-    """
-    Pre-allocates the array to store the results of each window, G_distinct, according to the parameters supplied to `vanhove()`.
-    Returns the group index arrays as lists of arrays if not given to `vanhove()` as such.
-
-    Parameters
-    ----------
-    g1
-    g2
-    nbins
-    stride
-    window_size
-
-    Returns
-    -------
-    G_self
-    G_distinct
-    g1
-    g2
-    """
-    if isinstance(g1, list) and isinstance(g2, list):
-        G_self = np.zeros((len(g1), int(window_size // stride), nbins), dtype=np.float32)
-        G_distinct = np.zeros((len(g1), len(g2), int(window_size // stride), nbins), dtype=np.float32)
-    elif isinstance(g1, list) and not isinstance(g2, list):
-        G_self = np.zeros((len(g1), int(window_size // stride), nbins), dtype=np.float32)
-        G_distinct = np.zeros((len(g1), 1, int(window_size // stride), nbins), dtype=np.float32)
-        g2 = [g2]
-    elif not isinstance(g1, list) and isinstance(g2, list):
-        G_self = np.zeros((1, int(window_size // stride), nbins), dtype=np.float32)
-        G_distinct = np.zeros((1, len(g2), int(window_size // stride), nbins), dtype=np.float32)
-        g1 = [g1]
-    else:
-        G_self = np.zeros((1, int(window_size // stride), nbins), dtype=np.float32)
-        G_distinct = np.zeros((1, 1, int(window_size // stride), nbins), dtype=np.float32)
-        g1 = [g1]
-        g2 = [g2]
-    return G_self, G_distinct, g1, g2
-
-
 def _calculate_according_to_inputs(G_self, G_distinct, g1, g2, n_windows, nbins, overlap, pbc, r_range, self_only, skip,
                                    stride, top, traj, window_size):
     nbins = np.int32(nbins)
@@ -106,12 +67,13 @@ def _prepare_loop_inputs(g1, g2, nbins, r_range):
         g2_array[i, :len(g2_array[i])] = g2[i]
 
     unions = get_all_unions(g1_array, g2_array, g1_lens, g2_lens)
+    from mdenvironment import JAX_AVAILABLE, NUMBA_AVAILABLE
+    append_functions = _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE)
+    if NUMBA_AVAILABLE and not JAX_AVAILABLE:
+        unions = np.float32(0)
 
     bin_edges = np.linspace(r_range[0], r_range[1], nbins + 1, dtype=np.float32)
     r = 0.5 * (bin_edges[1:] + bin_edges[:-1])
-
-    from mdenvironment import JAX_AVAILABLE, NUMBA_AVAILABLE
-    append_functions = _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE)
 
     return append_functions, bin_edges, g1_array, g1_lens, g2_array, g2_lens, r, unions
 

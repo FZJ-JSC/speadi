@@ -12,8 +12,8 @@ def _append_grts_mic(g_rts, n, xyz, g1, g2, g1_lens, g2_lens, cuvec, cuvol, r_ra
     for i in prange(g1_lens.shape[0]):
         for j in prange(g2_lens.shape[0]):
             if orthogonal:
-                rt_array = _rt_ortho_mic(xyz, g1[i].astype('int32'), g2[j].astype('int32'), cuvec)
+                rt_array = _rt_ortho_mic(xyz, g1[i], g2[j], cuvec)
             else:
-                rt_array = _rt_general_mic(xyz, g1[i].astype('int32'), g2[j].astype('int32'), cuvec)
+                rt_array = _rt_general_mic(xyz, g1[i], g2[j], cuvec)
             g_rts[i, j, n] = _compute_grt_numba(rt_array, g_rts[i, j, n], cuvol, bin_edges)
     return g_rts

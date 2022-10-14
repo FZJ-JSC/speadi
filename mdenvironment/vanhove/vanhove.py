@@ -4,7 +4,8 @@ G(r,t) between two groups of particles. Groups can also consist of single
 particles.
 """
 
-from .utils import _construct_results_array, _calculate_according_to_inputs
+from .utils import _calculate_according_to_inputs
+from ..common_tools.result_arrays import _vanhove_results as _construct_results_array
 
 
 def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, overlap=False, skip=1, stride=10,
