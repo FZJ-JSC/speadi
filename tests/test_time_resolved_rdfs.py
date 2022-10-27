@@ -8,7 +8,7 @@ refs = [('NA', 'CL'), ('O', 'NA')]
 pbc = ['ortho', 'general']
 JAX_AVAILABLE = [True, False]
 # NUMBA_AVAILABLE = [True, False]
-NUMBA_AVAILABLE = [True]
+NUMBA_AVAILABLE = [True, False]
 single_ref_params = list(product(ref, pbc, JAX_AVAILABLE, NUMBA_AVAILABLE))
 double_ref_params = list(product(refs, pbc, JAX_AVAILABLE, NUMBA_AVAILABLE))
 
