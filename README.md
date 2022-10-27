@@ -6,7 +6,7 @@ A Python package that aims to characterise the dynamics of local chemical enviro
 
 # Introduction
 
-MDEnvironment provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs). Selecting surface or active 'patches' of atoms in biomolecules is provided as a rough tool at the moment, but the aim of the package is to provide this in a formalised way that complements the analysis using TRRDFs and VHFs.
+MDEnvironment provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).
 
 # Quick install
 
@@ -90,7 +90,7 @@ Then, install locally using `pip` by adding the `-e` option:
 pip install -e MDEnvironment 
 ```
 
-## [WIP] Usage
+## Usage
 
 To calculate the time-resolved RDF for every single protein heavy atom with each ion species in solvent, you first need to specify the trajectory and topology to be used:
 
@@ -110,35 +110,25 @@ cl = top.select('name CL')
 protein_by_atom = [top.select(f'index {ix}') for ix in top.select('protein and not type H')]
 ```
 
-Now you can load `time-resolved RDF` to analyse the RDFs:
+Now you can load `MDEnvironment` to obtain RDFs:
 
 ```python
-from mylibrary import grt, plot_grt, plot_map
+import mdenvironment as mde
 ```
 
 To make an RDF for each heavy protein atom
 
 ```python
-r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
+r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
               skip=0, opt=True, pbc='ortho', stride=1, nbins=10)
 ```
 
-To repeat the analysis, but obtain un-normed raw histograms of distances instead, set the key `raw_counts` to `True`.
+To repeat the analysis, but obtain integral of $g(r)$ instead, simply replace `trrdf` with `int_trrdf` instead.
 
 ```python
-r, g_rt = grt(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
-              skip=0, opt=True, pbc='ortho', stride=1, nbins=10, raw_counts=True)
+r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+              skip=0, pbc='general, stride=1, nbins=400)
 ```
-
-## To-Do
-
--   [X] generate plots for documentation as showcase and teaser
--   [X] implement matrix based calculation of MIC convention for general PBC
--   [X] re-write MIC convention for general PBC in for-loops for `Numba`
--   [X] add defaults to docstrings
--   [X] change `skip` parameter to `from` - `till` (or some variation of wording)
--   [X] investigate use `JAX` or `QNumeric` as alternatives to `Numba`
--   [X] investigate implementation of `CUDA` kernels for GPU acceleration using `Numba`
 
 ## [WIP] Citation
 
