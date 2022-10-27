@@ -1,6 +1,6 @@
 from mdtraj.formats.hdf5 import HDF5TrajectoryFile
 from ..common_tools.get_union import get_all_unions
-from tqdm import trange
+from tqdm.auto import trange
 
 import mdtraj as md
 import numpy as np
