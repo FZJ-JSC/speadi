@@ -32,13 +32,10 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200,
     	mdtraj.iterload).
     g1 : list
         List of numpy arrays of atom indices representing the group to
-    	calculate G(r,t) for.
+    	calculate $G(r,t)$ for.
     g2 : list
         List of numpy arrays of atom indices representing the group to
-    	calculate G(r,t) with.
-
-    Other parameters
-    ----------------
+    	calculate $G(r,t)$ with.
     top : mdtraj.topology
         Topology object. Needed if trajectory given as a path to lazy-load.
     pbc : {string, NoneType}
@@ -60,18 +57,50 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200,
         calculation. E.g. stride = 10 means calculate distances only every
     	10th frame.
     r_range : tuple(float, float)
-        Tuple over which r in G(r,t) is defined.
+        Tuple over which r in $G(r,t)$ is defined.
     nbins : int
-        Number of bins (points in r to consider) in G(r,t)
+        Number of bins (points in r to consider) in $G(r,t)$
 
     Returns
     -------
     r : np.array
-        bin centers of G(r,t)
+        bin centers of $G(r,t)$
     G_self  : np.ndarray
         averaged function values of $G_{s}(r,t)$ for each time from t=0 considered
     G_distinct  : np.ndarray
         averaged function values of $G_{d}(r,t)$ for each time from t=0 considered
+
+    Examples
+    --------
+    First, import both `MDTraj` and `MDEnvironment` together.
+    >>> import mdtraj as md
+    >>> import mdenvironment as mde
+
+    Then, point to a particle simulation topology and trajectory (e.g. a Molecular Dynamics Simulation using `Gromacs`).
+    >>> topology = './topology.gro'
+    >>> trajectory = './trajectory.xtc'
+
+    Next, load the topology file using `MDTraj` and start defining reference and target groups.
+    >>> top = md.load_topology(topology)
+    >>> na = top.select('name NA')
+    >>> cl = top.select('name CL')
+    >>> protein_by_atom = [top.select(f'index {ix}') for
+    >>>                    ix in top.select('protein and not type H')]
+
+    Finally, run the van Hove Function (VHF) by calling `vhf()`.
+    >>> r, g_s, g_d = mde.vanhove(trajectory, protein_by_atom, [na, cl], top=top,
+    >>>                           n_windows=1000, window_size=500, skip=0,
+    >>>                           pbc='general', stride=1, nbins=400)
+
+    The outputs are
+
+     - the centre points of the radial bins `r`
+
+     - the $G_s(r,t)$ self part of the correlation function with shape
+      $N$(reference groups)$\\times N$(\\tau windows)$\\times N$(radial bins)
+
+     - the $G_s(r,t)$ self part of the correlation function with shape
+      $N$(reference groups)$\\times N$(target groups)$\\times N$(\\tau windows)$\\times N$(radial bins)
 
     References
     -------

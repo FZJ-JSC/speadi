@@ -2,8 +2,8 @@ import numpy as np
 
 
 def get_union(ref, target):
-    """Gives the union of a single reference and a single target group, allowing G(r,t) to be split
-    into G$_s$(r,t) and G$_t$(r,t).
+    """Gives the union of a single reference and a single target group, allowing $G(r,t)$ to be split
+    into $G_s(r,t)$ and $G_t(r,t)$.
 
     Parameters
     ----------
@@ -25,8 +25,8 @@ def get_union(ref, target):
 
 
 def get_all_unions(g1, g2, g1_lens, g2_lens):
-    """Gives the union of all reference groups and all target groups, allowing G(r,t) to be split
-    into G$_s$(r,t) and G$_t$(r,t).
+    """Gives the union of all reference groups and all target groups, allowing $G(r,t)$ to be split
+    into $G_s(r,t)$ and $G_t(r,t)$.
 
     Parameters
     ----------
@@ -34,10 +34,10 @@ def get_all_unions(g1, g2, g1_lens, g2_lens):
         List object containing arrays of reference groups.
     g2 : list
         List object containing arrays of target groups.
-    g1_lens : int
-        Number of reference groups contained in g1.
-    g2_lens : int
-        Number of target groups contained in g2.
+    g1_lens : np.ndarray, dtype=int
+        Integer number of elements in each reference group contained in g1.
+    g2_lens : np.ndarray, dtype=int
+        Integer number of elements in each target group contained in g2.
 
     Returns
     -------
@@ -53,6 +53,5 @@ def get_all_unions(g1, g2, g1_lens, g2_lens):
         unions[str(i)] = {}
         for j in range(Ng2):
             unions[str(i)][str(j)] = get_union(g1[i], g2[j])
-
 
     return unions

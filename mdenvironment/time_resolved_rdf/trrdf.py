@@ -27,9 +27,6 @@ def trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, s
     g2 : list
         List of numpy arrays of atom indices representing the group to
     	calculate G(r,t) with
-
-    Other parameters
-    ----------------
     top : mdtraj.topology
         Topology object. Needed if trajectory given as a path to lazy-load.
     pbc : {string, NoneType}
@@ -59,6 +56,35 @@ def trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, s
         bin centers of g(r,t)
     g_rt : np.array
         averaged function values of g(r,t) for each time from t=0 considered
+
+    Examples
+    --------
+    First, import both `MDTraj` and `MDEnvironment` together.
+    >>> import mdtraj as md
+    >>> import mdenvironment as mde
+
+    Then, point to a particle simulation topology and trajectory (e.g. a Molecular Dynamics Simulation using `Gromacs`).
+    >>> topology = './topology.gro'
+    >>> trajectory = './trajectory.xtc'
+
+    Next, load the topology file using `MDTraj` and start defining reference and target groups.
+    >>> top = md.load_topology(topology)
+    >>> na = top.select('name NA')
+    >>> cl = top.select('name CL')
+    >>> protein_by_atom = [top.select(f'index {ix}') for
+    >>>                    ix in top.select('protein and not type H')]
+
+    Finally, run the Time-Resolved Radial Distribution Function (TRRDF) by calling `trrdf()`.
+    >>> r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top,
+    >>>                     n_windows=1000, window_size=500, skip=0,
+    >>>                     pbc='general', stride=1, nbins=400)
+
+    The outputs are
+
+    - the centre points of the radial bins `r`
+
+    - the $g(r,t)$ function with shape $N$(reference groups)$\\times N$(target groups)$\\times N$(windows)$\\times N$(radial bins)
+
     """
     g_rt, g1, g2 = _construct_results_array(g1, g2, n_windows, nbins)
 
