@@ -3,4 +3,7 @@
 ## van Hove function G(r,t)
 ::: mdenvironment.vanhove.vanhove
     options:
-        heading_level: 0
+        members:
+            - vanhove
+        separate_signature: True
+        heading_level: 3

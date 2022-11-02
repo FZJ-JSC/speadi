@@ -18,6 +18,9 @@ nav:
       - Introduction: index.md
       - Time-Resolved Radial Distribution Functions (TRRDFs): TRRDFs.md
       - van Hove Dynamic Correlation Functions (VHFs): vanhove.md
+      - Additional helper functions: helpers.md
+  - Examples:
+      - Examples 1: examples.md
 
 plugins:
   - search
@@ -28,6 +31,10 @@ plugins:
         python:
           options:
             docstring_style: numpy
+            show_root_full_path: False
+            show_root_toc_entry: False
+            line_length: 60
+            docstring_section_style: spacy
   - git-revision-date-localized:
       enable_creation_date: true
   - pdf-export:
@@ -53,4 +60,4 @@ extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
-copyright: Copyright &copy; MDEnvironment 2022 Forschungszentrum Juelich, Juelich Supercomputing Centre
+copyright: Copyright &copy; MDEnvironment 2022 Forschungszentrum Jülich, Jülich Supercomputing Centre
