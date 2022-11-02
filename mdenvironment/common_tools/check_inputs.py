@@ -1,7 +1,19 @@
 import numpy as np
+import numpy.typing as npt
 
 
 def prepare_input_group(input_group):
+    """Prepares the inputs given to `trrdf()`, `int_trrdf()` or `vanhove()` functions.
+
+    Parameters
+    ----------
+    input_group : npt.ArrayLike
+
+    Returns
+    -------
+    input_group : npt.ArrayLike
+
+    """
     if not isinstance(input_group, list):
         if isinstance(input_group, np.ndarray):
             input_group = [input_group]
