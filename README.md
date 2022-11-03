@@ -119,15 +119,15 @@ import mdenvironment as mde
 To make an RDF for each heavy protein atom
 
 ```python
-r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=4_500, window_size=100,\
-              skip=0, opt=True, pbc='ortho', stride=1, nbins=10)
+r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+              skip=0, pbc='general', stride=1, nbins=400)
 ```
 
 To repeat the analysis, but obtain integral of $g(r)$ instead, simply replace `trrdf` with `int_trrdf` instead.
 
 ```python
 r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
-              skip=0, pbc='general, stride=1, nbins=400)
+              skip=0, pbc='general', stride=1, nbins=400)
 ```
 
 ## [WIP] Citation
@@ -148,4 +148,12 @@ on the GCS Supercomputer JUWELS at Jülich Supercomputing Centre (JSC)
 
 -   Emile de Bruyn
 
+## Copyright
+
+MDEnvironment Copyright (C) 2022 Forschungszentrum Jülich GmbH, Jülich Supercomputing Centre and the Authors
+
 ## License
+
+This library is free software; you can redistribute it and/or modify it under the terms of the GNU Lesser General Public License as published by the Free Software Foundation; either version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more details.
