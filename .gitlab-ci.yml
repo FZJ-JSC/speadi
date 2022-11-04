@@ -64,12 +64,15 @@ doc site test:
 pages:
   stage: deploy
   extends: .pages_dependencies
+  needs:
+    - pytest
+    - doc site test
   tags:
   - public-docker
   script:
-  - mkdocs build --strict --verbose --site_dir doc_site
+  - mkdocs build --strict --verbose --site_dir public
   artifacts:
     paths:
-    - doc_site
+    - public
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
