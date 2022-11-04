@@ -58,7 +58,7 @@ various:pytest:
   parallel:
     matrix:
       - PYTHON_VERSION: ['3.6', '3.7', '3.8', '3.10', '3.11']
-  image: python:"${PYTHON_VERSION}"
+  image: python:${PYTHON_VERSION}
   stage: test
   extends: .install_dependencies
   tags:
