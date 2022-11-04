@@ -12,10 +12,10 @@ before_script:
   - source venv/bin/activate
   - pip install -U setuptools
   - pip install -e '.[all]'
-  - pip install pytest pytest-xdist pytest-xdist
+  - pip install pytest pytest-cov pytest-xdist
   - pip install mkdocs mkdocs-material mkdocs-autorefs mkdocs-git-revision-date-localized-plugin mkdocs-material \
                 mkdocs-material-extensions mkdocs-pdf-export-plugin mkdocs-with-pdf mkdocstrings mkdocstrings-python \
-                mkgendocs mkpdfs-mkdocs
+                mkgendocs mkpdfs-mkdocs black
 
 stages:
   - Test
@@ -26,17 +26,17 @@ pytest:
   tags:
   - public-docker
   script:
-    - coverage run -m pytest -n 4 --log-cli-level=INFO
+    - pytest -n 4 --log-cli-level=INFO --cov=mdenvironment tests/
     - coverage report
-    - coverage xml
+    - coverage xml -o tests/coverage.xml
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: build/cobertura.xml
+        path: tests/coverage.xml
 
-test:
+doc site test:
   stage: Test
   tags:
   - public-docker
