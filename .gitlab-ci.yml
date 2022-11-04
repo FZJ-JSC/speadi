@@ -15,8 +15,8 @@ cache:
 .install_dependencies:
   before_script:
     - pip install virtualenv
-    - virtualenv venv
-    - source venv/bin/activate
+    - virtualenv venv_${PYTHON_VERSION}
+    - source venv_${PYTHON_VERSION}/bin/activate
     - python -V
     - pip install -U setuptools
     - pip install -e '.[all]'
@@ -25,8 +25,8 @@ cache:
 .pages_dependencies:
   before_script:
     - pip install virtualenv
-    - virtualenv venv_${PY_VER}
-    - source venv_${PY_VER}/bin/activate
+    - virtualenv venv_3.9
+    - source venv_3.9/bin/activate
     - python -V
     - pip install mkdocs mkdocs-material mkdocs-autorefs mkdocs-git-revision-date-localized-plugin mkdocs-material \
                   mkdocs-material-extensions mkdocs-pdf-export-plugin mkdocs-with-pdf mkdocstrings mkdocstrings-python \
@@ -38,7 +38,7 @@ stages:
 
 py39:pytest:
   variables:
-    PY_VER: "39"
+    PYTHON_VERSION: "3.9"
   image: python:3.9
   stage: test
   extends: .install_dependencies
@@ -54,77 +54,23 @@ py39:pytest:
         coverage_format: cobertura
         path: tests/coverage.xml
 
-py36:pytest:
-  variables:
-    PY_VER: "36"
-  image: python:3.6
+various:pytest:
+  parallel:
+    matrix:
+      - PYTHON_VERSION: ['3.6', '3.7', '3.8', '3.10', '3.11']
+  image: python:${PYTHON_VERSION}
   stage: test
   extends: .install_dependencies
   tags:
   - public-docker
   script:
-    - pytest -n 4 --log-cli-level=INFO --cov=mdenvironment tests/
-    - coverage xml -o tests/coverage.xml
-  coverage: '/^TOTAL.+?(\d+\%)$/'
+    - pytest --log-cli-level=INFO --cov=mdenvironment tests/
+    - coverage xml -o tests/${PYTHON_VERSION}_coverage.xml
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: tests/py_${PY_VER}_coverage.xml
-
-py37:pytest:
-  variables:
-    PY_VER: "37"
-  image: python:3.7
-  stage: test
-  extends: .install_dependencies
-  tags:
-  - public-docker
-  script:
-    - pytest -n 4 --log-cli-level=INFO --cov=mdenvironment tests/
-    - coverage xml -o tests/coverage.xml
-  coverage: '/^TOTAL.+?(\d+\%)$/'
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: tests/py_${PY_VER}_coverage.xml
-
-py38:pytest:
-  variables:
-    PY_VER: "38"
-  image: python:3.8
-  stage: test
-  extends: .install_dependencies
-  tags:
-  - public-docker
-  script:
-    - pytest -n 4 --log-cli-level=INFO --cov=mdenvironment tests/
-    - coverage xml -o tests/coverage.xml
-  coverage: '/^TOTAL.+?(\d+\%)$/'
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: tests/py_${PY_VER}_coverage.xml
-
-py310:pytest:
-  variables:
-    PY_VER: "310"
-  image: python:3.10
-  stage: test
-  extends: .install_dependencies
-  tags:
-  - public-docker
-  script:
-    - pytest -n 4 --log-cli-level=INFO --cov=mdenvironment tests/
-    - coverage xml -o tests/coverage.xml
-  coverage: '/^TOTAL.+?(\d+\%)$/'
-  artifacts:
-    reports:
-      coverage_report:
-        coverage_format: cobertura
-        path: tests/py_${PY_VER}_coverage.xml
+        path: tests/${PYTHON_VERSION}_coverage.xml
 
 doc site test:
   stage: test
