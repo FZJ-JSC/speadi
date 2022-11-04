@@ -4,30 +4,35 @@ cache:
   paths:
     - venv/
 
-before_script:
-  - python -V  # Print out python version for debugging
-  - pip install -U setuptools
-  - pip install virtualenv
-  - virtualenv venv
-  - source venv/bin/activate
-  - pip install -U setuptools
-  - pip install -e '.[all]'
-  - pip install pytest pytest-cov pytest-xdist
-  - pip install mkdocs mkdocs-material mkdocs-autorefs mkdocs-git-revision-date-localized-plugin mkdocs-material \
-                mkdocs-material-extensions mkdocs-pdf-export-plugin mkdocs-with-pdf mkdocstrings mkdocstrings-python \
-                mkgendocs mkpdfs-mkdocs black
+.install_dependencies:
+  before_script:
+    - python -V
+    - pip install -U setuptools
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install -U setuptools
+    - pip install -e '.[all]'
+    - pip install pytest pytest-cov pytest-xdist
+
+.pages_dependencies:
+  before_script:
+    - python -V  # Print out python version for debugging
+    - pip install mkdocs mkdocs-material mkdocs-autorefs mkdocs-git-revision-date-localized-plugin mkdocs-material \
+                  mkdocs-material-extensions mkdocs-pdf-export-plugin mkdocs-with-pdf mkdocstrings mkdocstrings-python \
+                  mkgendocs mkpdfs-mkdocs black
 
 stages:
-  - Test
-  - Deploy
+  - test
+  - deploy
 
 pytest:
-  stage: Test
+  stage: test
+  extends: .install_dependencies
   tags:
   - public-docker
   script:
     - pytest -n 4 --log-cli-level=INFO --cov=mdenvironment tests/
-    - coverage report
     - coverage xml -o tests/coverage.xml
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
@@ -37,23 +42,25 @@ pytest:
         path: tests/coverage.xml
 
 doc site test:
-  stage: Test
+  stage: test
+  extends: .pages_dependencies
   tags:
   - public-docker
   script:
-  - mkdocs build --strict --verbose --site-dir test
+  - mkdocs build --strict --verbose --site-dir site_test
   artifacts:
     paths:
-    - test
+    - site_test
 
 pages:
-  stage: Deploy
+  stage: deploy
+  extends: .pages_dependencies
   tags:
   - public-docker
   script:
-  - mkdocs build --strict --verbose
+  - mkdocs build --strict --verbose doc_site
   artifacts:
     paths:
-    - public
+    - doc_site
   rules:
     - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
