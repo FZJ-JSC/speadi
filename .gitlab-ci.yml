@@ -1,23 +1,32 @@
 image: python:3.9
 
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  PRE_COMMIT_DIR: "${CI_PROJECT_DIR}/.cache/pre-commit"
+  VENV_DIR: "${CI_PROJECT_DIR}/venv"
+
 cache:
   paths:
-    - venv/
+    - ${PIP_CACHE_DIR}
+    - ${PRE_COMMIT_DIR}
+    - ${VENV_DIR}
 
 .install_dependencies:
   before_script:
-    - python -V
-    - pip install -U setuptools
     - pip install virtualenv
     - virtualenv venv
     - source venv/bin/activate
+    - python -V
     - pip install -U setuptools
     - pip install -e '.[all]'
     - pip install pytest pytest-cov pytest-xdist
 
 .pages_dependencies:
   before_script:
-    - python -V  # Print out python version for debugging
+    - pip install virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - python -V
     - pip install mkdocs mkdocs-material mkdocs-autorefs mkdocs-git-revision-date-localized-plugin mkdocs-material \
                   mkdocs-material-extensions mkdocs-pdf-export-plugin mkdocs-with-pdf mkdocstrings mkdocstrings-python \
                   mkgendocs mkpdfs-mkdocs black
