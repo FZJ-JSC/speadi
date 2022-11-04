@@ -70,7 +70,7 @@ pages:
   tags:
   - public-docker
   script:
-  - mkdocs build --strict --verbose --site_dir public
+  - mkdocs build --strict --verbose --site-dir public
   artifacts:
     paths:
     - public
