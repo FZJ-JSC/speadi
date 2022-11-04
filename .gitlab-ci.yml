@@ -58,7 +58,7 @@ pages:
   tags:
   - public-docker
   script:
-  - mkdocs build --strict --verbose doc_site
+  - mkdocs build --strict --verbose --site_dir doc_site
   artifacts:
     paths:
     - doc_site
