@@ -15,8 +15,8 @@ cache:
 .install_dependencies:
   before_script:
     - pip install virtualenv
-    - virtualenv venv_${PYTHON_VERSION}
-    - source venv_${PYTHON_VERSION}/bin/activate
+    - virtualenv venv_"${PYTHON_VERSION}"
+    - source venv_"${PYTHON_VERSION}"/bin/activate
     - python -V
     - pip install -U setuptools
     - pip install -e '.[all]'
@@ -58,19 +58,19 @@ various:pytest:
   parallel:
     matrix:
       - PYTHON_VERSION: ['3.6', '3.7', '3.8', '3.10', '3.11']
-  image: python:${PYTHON_VERSION}
+  image: python:"${PYTHON_VERSION}"
   stage: test
   extends: .install_dependencies
   tags:
   - public-docker
   script:
     - pytest --log-cli-level=INFO --cov=mdenvironment tests/
-    - coverage xml -o tests/${PYTHON_VERSION}_coverage.xml
+    - coverage xml -o tests/"${PYTHON_VERSION}"_coverage.xml
   artifacts:
     reports:
       coverage_report:
         coverage_format: cobertura
-        path: tests/${PYTHON_VERSION}_coverage.xml
+        path: tests/"${PYTHON_VERSION}"_coverage.xml
 
 doc site test:
   stage: test
