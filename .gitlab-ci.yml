@@ -12,17 +12,21 @@ before_script:
   - source venv/bin/activate
   - pip install -U setuptools
   - pip install -e '.[all]'
-  - pip install pytest pytest-cov
+  - pip install pytest pytest-xdist pytest-xdist
+  - pip install mkdocs mkdocs-material mkdocs-autorefs mkdocs-git-revision-date-localized-plugin mkdocs-material \
+                mkdocs-material-extensions mkdocs-pdf-export-plugin mkdocs-with-pdf mkdocstrings mkdocstrings-python \
+                mkgendocs mkpdfs-mkdocs
 
 stages:
   - Test
+  - Deploy
 
 pytest:
   stage: Test
   tags:
   - public-docker
   script:
-    - coverage run -m pytest --log-cli-level=INFO
+    - coverage run -m pytest -n 4 --log-cli-level=INFO
     - coverage report
     - coverage xml
   coverage: '/^TOTAL.+?(\d+\%)$/'
@@ -32,3 +36,24 @@ pytest:
         coverage_format: cobertura
         path: build/cobertura.xml
 
+test:
+  stage: Test
+  tags:
+  - public-docker
+  script:
+  - mkdocs build --strict --verbose --site-dir test
+  artifacts:
+    paths:
+    - test
+
+pages:
+  stage: Deploy
+  tags:
+  - public-docker
+  script:
+  - mkdocs build --strict --verbose
+  artifacts:
+    paths:
+    - public
+  rules:
+    - if: $CI_COMMIT_REF_NAME == $CI_DEFAULT_BRANCH
