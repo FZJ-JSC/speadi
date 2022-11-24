@@ -1,7 +1,7 @@
 # van Hove Correlation Functions (TRRDFs)
 
 ## van Hove function G(r,t)
-::: mdenvironment.vanhove.vanhove
+::: speadi.vanhove.vanhove
     options:
         members:
             - vanhove

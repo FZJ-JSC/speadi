@@ -19,7 +19,7 @@ def _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE):
             os.environ['KMP_WARNINGS'] = 'off'
 
             from numba import set_num_threads
-            from mdenvironment import NUMBA_THREADS
+            from speadi import NUMBA_THREADS
             set_num_threads(NUMBA_THREADS)
 
             from .numba.add_distribution_function_time_slice import _append_Grts_general_mic, _append_Grts_ortho_mic, \
@@ -67,7 +67,7 @@ def _prepare_loop_inputs(g1, g2, nbins, r_range):
         g2_array[i, :len(g2_array[i])] = g2[i]
 
     unions = get_all_unions(g1_array, g2_array, g1_lens, g2_lens)
-    from mdenvironment import JAX_AVAILABLE, NUMBA_AVAILABLE
+    from speadi import JAX_AVAILABLE, NUMBA_AVAILABLE
     append_functions = _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE)
     if NUMBA_AVAILABLE and not JAX_AVAILABLE:
         unions = np.float32(0)

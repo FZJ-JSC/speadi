@@ -1,30 +1,30 @@
-# Welcome to MDEnvironment's Documentation Page
+# Welcome to speadi's Documentation Page
 
-MDEnvironment is a Python package that aims to characterise the dynamics of local chemical environments from Molecular Dynamics trajectories of proteins and other biomolecules.
+speadi is a Python package that aims to characterise the dynamics of local chemical environments from Molecular Dynamics trajectories of proteins and other biomolecules.
 
-<a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment/badges/master/coverage.svg" /></a>
+<a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/coverage.svg" /></a>
 
 ## Introduction
 
-MDEnvironment provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).
+speadi provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).
 
 ### Quick install
 
 For installation into the default python environment, run the following pip command in a terminal:
 
 ```bash
-pip install git+https://github.com/EmileDeBruyn/MDEnvironment.git
+pip install git+https://github.com/EmileDeBruyn/speadi.git
 ```
 
 Or, to install just into the current user's local environment, add the `--user` option:
 
 ```bash
-pip install --user git+https://github.com/EmileDeBruyn/MDEnvironment.git
+pip install --user git+https://github.com/EmileDeBruyn/speadi.git
 ```
 
 ## RDFs
 
-Normally, Radial Distribution Functions used in atomistic simulations are averaged over entire trajectories. `MDEnvironment` averages over user-defined windows of time. This gives a separate RDF between group *a* and *b* for each window in the trajectory.
+Normally, Radial Distribution Functions used in atomistic simulations are averaged over entire trajectories. `speadi` averages over user-defined windows of time. This gives a separate RDF between group *a* and *b* for each window in the trajectory.
 
 ## Time-resolved RDFs
 
@@ -52,26 +52,26 @@ Installation is provided easily through `pip`. It can be installed either direct
 
 ## Acceleration
 
-As a default, MDEnvironment doesn't install `JAX` or `Numba`, but uses these if detected in the same Python environment that `MDEnvironment` is installed into.
+As a default, speadi doesn't install `JAX` or `Numba`, but uses these if detected in the same Python environment that `speadi` is installed into.
 
-To install `JAX` and `jaxlib` along with `MDEnvironment`, simply add the `jax` extra to `pip`:
+To install `JAX` and `jaxlib` along with `speadi`, simply add the `jax` extra to `pip`:
 
 ```bash
-pip install 'git+https://github.com/EmileDeBruyn/MDEnvironment.git#egg=MDEnvironment[jax]'
+pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=speadi[jax]'
 ```
 
 Note that by default, installing `jax` using pip (through pypi) only enables CPU acceleration. To enable GPU or TPU acceleration, please see <https://github.com/google/jax> for details on how to obtain a `JAX` installation for the specific `CuDNN` version in your environment.
 
-To install `Numba` along with `MDEnvironment`, simply add the `numba` extra to `pip`:
+To install `Numba` along with `speadi`, simply add the `numba` extra to `pip`:
 
 ```bash
-pip install 'git+https://github.com/EmileDeBruyn/MDEnvironment.git#egg=MDEnvironment[numba]'
+pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=speadi[numba]'
 ```
 
-Or, to install both `jax` and `numba` alongside `MDEnvironment`, add the `all` extra to `pip`:
+Or, to install both `jax` and `numba` alongside `speadi`, add the `all` extra to `pip`:
 
 ```bash
-pip install 'git+https://github.com/EmileDeBruyn/MDEnvironment.git#egg=MDEnvironment[all]'
+pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=speadi[all]'
 ```
 
 The `--user` pip option may be added to all of these commands to install just for the current user.
@@ -81,13 +81,13 @@ The `--user` pip option may be added to all of these commands to install just fo
 Open up a terminal. Navigate to the location you want to clone this repository. Then, run the following to clone the entire repository:
 
 ```bash
-git clone https://github.com/EmileDeBruyn/MDEnvironment
+git clone https://github.com/EmileDeBruyn/speadi
 ```
 
 Then, install locally using `pip` by adding the `-e` option:
 
 ```bash
-pip install -e MDEnvironment 
+pip install -e SPEADI 
 ```
 
 ## Usage
@@ -111,10 +111,10 @@ protein_by_atom = [top.select(f'index {ix}')
                    for ix in top.select('protein and not type H')]
 ```
 
-Now you can load `MDEnvironment` to obtain RDFs:
+Now you can load `speadi` to obtain RDFs:
 
 ```python
-import mdenvironment as mde
+import speadi as mde
 ```
 
 To make an RDF for each heavy protein atom
@@ -139,8 +139,8 @@ Add Zenodo link as soon as a first public release is planned to coincide with op
 
 ## Acknowledgments
 
-We gratefully acknowledge the following institutions for their support in the development of MDEnvironment and for 
-granting compute time to develop and test MDEnvironment.
+We gratefully acknowledge the following institutions for their support in the development of speadi and for 
+granting compute time to develop and test speadi.
 
 - Gauss Centre for Supercomputing e.V. (www.gauss-centre.eu) and the John von Neumann Institute for Computing (NIC)
 
@@ -149,8 +149,8 @@ on the GCS Supercomputer JUWELS at Jülich Supercomputing Centre (JSC)
 - HDS-LEE Helmholtz Graduate School
 
 ## Copyright
-MDEnvironment 
-Copyright (C) 2022 Forschungszentrum Jülich GmbH,
+speadi 
+Copyright &copy; 2022 Forschungszentrum Jülich GmbH,
 Jülich Supercomputing Centre and the Authors
 
 ## License

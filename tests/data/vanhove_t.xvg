@@ -4,7 +4,7 @@
 # 
 # Executable:   /usr/local/gromacs/gromacs-plumed/bin/gmx_plumed
 # Data prefix:  /usr/local/gromacs/gromacs-plumed
-# Working dir:  /home/emile/ownCloud/darbeit/MDEnvironment/MDEnvironment/tests/data
+# Working dir:  /home/emile/ownCloud/darbeit/speadi/speadi/tests/data
 # Command line:
 #   gmx_plumed vanhove -f nacl_box -s nacl_box -or -nr 100 -om -b 0 -e 2 -dt 0.02 -ot -rt .1
 # gmx vanhove is part of G R O M A C S:

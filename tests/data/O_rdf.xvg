@@ -4,7 +4,7 @@
 # 
 # Executable:   /opt/homebrew/bin/../Cellar/gromacs/2021.5/bin/gmx
 # Data prefix:  /opt/homebrew/bin/../Cellar/gromacs/2021.5
-# Working dir:  /Users/emiledebruyn/ownCloud/darbeit/MDEnvironment/tests/data
+# Working dir:  /Users/emiledebruyn/ownCloud/darbeit/speadi/tests/data
 # Command line:
 #   gmx rdf -nobackup -f nacl_box -s nacl_box -n nacl_box -ref O -sel O -o O_rdf.xvg -cut 0.005 -rmax 1.2049999999999998 -bin 0.01
 # gmx rdf is part of G R O M A C S:

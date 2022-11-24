@@ -45,7 +45,7 @@ py39:pytest:
   tags:
   - public-docker
   script:
-    - pytest -n 4 --log-cli-level=INFO --cov=mdenvironment tests/
+    - pytest -n 4 --log-cli-level=INFO --cov=speadi tests/
     - coverage xml -o tests/coverage.xml
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
@@ -64,7 +64,7 @@ various:pytest:
   tags:
   - public-docker
   script:
-    - pytest --log-cli-level=INFO --cov=mdenvironment tests/
+    - pytest --log-cli-level=INFO --cov=speadi tests/
     - coverage xml -o tests/"${PYTHON_VERSION}"_coverage.xml
   artifacts:
     reports:

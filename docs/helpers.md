@@ -1,6 +1,6 @@
 # Additional Helper functions
 
-::: mdenvironment.common_tools.get_union
+::: speadi.common_tools.get_union
     options:
         members:
             - get_union
@@ -8,7 +8,7 @@
         separate_signature: True
         heading_level: 3
 
-::: mdenvironment.common_tools.check_acceleration
+::: speadi.common_tools.check_acceleration
     options:
         members:
             - check_jax

@@ -1,6 +1,6 @@
-site_name: MDEnvironment
-repo_url: https://gitlab.jsc.fz-juelich.de/debruyn1/mdenvironment
-repo_name: MDEnvironment
+site_name: SPEADI
+repo_url: https://gitlab.jsc.fz-juelich.de/debruyn1/speadi
+repo_name: SPEADI
 
 theme:
   name: "material"
@@ -21,6 +21,9 @@ nav:
       - Additional helper functions: helpers.md
   - Examples:
       - Examples 1: examples.md
+  - Citation:
+      - How to cite: citation.md
+      - References: references.md
 
 plugins:
   - search
@@ -65,4 +68,4 @@ extra_javascript:
   - https://polyfill.io/v3/polyfill.min.js?features=es6
   - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
 
-copyright: Copyright &copy; MDEnvironment 2022 Forschungszentrum Jülich, Jülich Supercomputing Centre
+copyright: Copyright &copy; SPEADI 2022 Forschungszentrum Jülich, Jülich Supercomputing Centre

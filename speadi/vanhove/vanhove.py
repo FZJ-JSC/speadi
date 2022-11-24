@@ -72,9 +72,9 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200,
 
     Examples
     --------
-    First, import both `MDTraj` and `MDEnvironment` together.
+    First, import both `MDTraj` and `SPEADI` together.
     >>> import mdtraj as md
-    >>> import mdenvironment as mde
+    >>> import speadi as mde
 
     Then, point to a particle simulation topology and trajectory (e.g. a Molecular Dynamics Simulation using `Gromacs`).
     >>> topology = './topology.gro'
