@@ -6,7 +6,7 @@ A Python package that aims to characterise the dynamics of local chemical enviro
 
 # Introduction
 
-speadi provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).
+SPEADI provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).
 
 # Quick install
 
@@ -24,7 +24,7 @@ pip install --user git+https://github.com/EmileDeBruyn/speadi.git
 
 # RDFs
 
-Normally, Radial Distribution Functions used in atomistic simulations are averaged over entire trajectories. `speadi` averages over user-defined windows of time. This gives a separate RDF between group *a* and *b* for each window in the trajectory.
+Normally, Radial Distribution Functions used in atomistic simulations are averaged over entire trajectories. `SPEADI` averages over user-defined windows of time. This gives a separate RDF between group *a* and *b* for each window in the trajectory.
 
 # Time-resolved RDFs
 
@@ -52,9 +52,9 @@ Installation is provided easily through `pip`. It can be installed either direct
 
 ## Acceleration
 
-As a default, speadi doesn't install `JAX` or `Numba`, but uses these if detected in the same Python environment that `speadi` is installed into.
+As a default, `SPEADI` doesn't install `JAX` or `Numba`, but uses these if detected in the same Python environment that `SPEADI` is installed into.
 
-To install `JAX` and `jaxlib` along with `speadi`, simply add the `jax` extra to `pip`:
+To install `JAX` and `jaxlib` along with `SPEADI`, simply add the `jax` extra to `pip`:
 
 ```bash
 pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[jax]'
@@ -62,13 +62,13 @@ pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[jax]'
 
 Note that by default, installing `jax` using pip (through pypi) only enables CPU acceleration. To enable GPU or TPU acceleration, please see <https://github.com/google/jax> for details on how to obtain a `JAX` installation for the specific `CuDNN` version in your environment.
 
-To install `Numba` along with `speadi`, simply add the `numba` extra to `pip`:
+To install `Numba` along with `SPEADI`, simply add the `numba` extra to `pip`:
 
 ```bash
 pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[numba]'
 ```
 
-Or, to install both `jax` and `numba` alongside `speadi`, add the `all` extra to `pip`:
+Or, to install both `jax` and `numba` alongside `SPEADI`, add the `all` extra to `pip`:
 
 ```bash
 pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[all]'
@@ -110,7 +110,7 @@ cl = top.select('name CL')
 protein_by_atom = [top.select(f'index {ix}') for ix in top.select('protein and not type H')]
 ```
 
-Now you can load `speadi` to obtain RDFs:
+Now you can load `SPEADI` to obtain RDFs:
 
 ```python
 import speadi as sp
@@ -136,7 +136,7 @@ Add Zenodo link as soon as a first public release is planned to coincide with op
 
 ## Acknowledgments
 
-We gratefully acknowledge the following institutions for their support in the development of speadi and for granting compute time to develop and test speadi.
+We gratefully acknowledge the following institutions for their support in the development of SPEADI and for granting compute time to develop and test SPEADI.
 
 -   Gauss Centre for Supercomputing e.V. (www.gauss-centre.eu) and the John von Neumann Institute for Computing (NIC)
 
@@ -150,7 +150,7 @@ on the GCS Supercomputer JUWELS at Jülich Supercomputing Centre (JSC)
 
 ## Copyright
 
-speadi Copyright (C) 2022 Forschungszentrum Jülich GmbH, Jülich Supercomputing Centre and the Authors
+SPEADI Copyright (C) 2022 Forschungszentrum Jülich GmbH, Jülich Supercomputing Centre and the Authors
 
 ## License
 
