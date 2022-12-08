@@ -125,7 +125,7 @@ trajectories of proteins and other biomolecules.
     - HDS-LEE Helmholtz Graduate School
 
 ** Contributors
-   - Emile de Bruyn
+   - Emile de Bruyn (e.de.bruyn@fz-juelich.de)
 
 ** Copyright
    SPEADI

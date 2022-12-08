@@ -146,7 +146,7 @@ on the GCS Supercomputer JUWELS at Jülich Supercomputing Centre (JSC)
 
 ## Contributors
 
--   Emile de Bruyn
+-   Emile de Bruyn (e.de.bruyn@fz-juelich.de)
 
 ## Copyright
 
