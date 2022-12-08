@@ -13,13 +13,13 @@ SPEADI provides the user tools with which to characterise the local chemical env
 For installation into the default python environment, run the following pip command in a terminal:
 
 ```bash
-pip install git+https://github.com/EmileDeBruyn/speadi.git
+pip install git+https://github.com/FZJ-JSC/speadi.git
 ```
 
 Or, to install just into the current user's local environment, add the `--user` option:
 
 ```bash
-pip install --user git+https://github.com/EmileDeBruyn/speadi.git
+pip install --user git+https://github.com/FZJ-JSC/speadi.git
 ```
 
 # RDFs
@@ -57,7 +57,7 @@ As a default, `SPEADI` doesn't install `JAX` or `Numba`, but uses these if detec
 To install `JAX` and `jaxlib` along with `SPEADI`, simply add the `jax` extra to `pip`:
 
 ```bash
-pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[jax]'
+pip install 'git+https://github.com/FZJ-JSC/speadi.git#egg=SPEADI[jax]'
 ```
 
 Note that by default, installing `jax` using pip (through pypi) only enables CPU acceleration. To enable GPU or TPU acceleration, please see <https://github.com/google/jax> for details on how to obtain a `JAX` installation for the specific `CuDNN` version in your environment.
@@ -65,13 +65,13 @@ Note that by default, installing `jax` using pip (through pypi) only enables CPU
 To install `Numba` along with `SPEADI`, simply add the `numba` extra to `pip`:
 
 ```bash
-pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[numba]'
+pip install 'git+https://github.com/FZJ-JSC/speadi.git#egg=SPEADI[numba]'
 ```
 
 Or, to install both `jax` and `numba` alongside `SPEADI`, add the `all` extra to `pip`:
 
 ```bash
-pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[all]'
+pip install 'git+https://github.com/FZJ-JSC/speadi.git#egg=SPEADI[all]'
 ```
 
 The `--user` pip option may be added to all of these commands to install just for the current user.
@@ -81,7 +81,7 @@ The `--user` pip option may be added to all of these commands to install just fo
 Open up a terminal. Navigate to the location you want to clone this repository. Then, run the following to clone the entire repository:
 
 ```bash
-git clone https://github.com/EmileDeBruyn/speadi
+git clone https://github.com/FZJ-JSC/speadi
 ```
 
 Then, install locally using `pip` by adding the `-e` option:

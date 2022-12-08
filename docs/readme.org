@@ -21,12 +21,12 @@ trajectories of proteins and other biomolecules.
 * Quick install
   For installation into the default python environment, run the following pip command in a terminal:
    #+begin_src bash
-		pip install git+https://github.com/EmileDeBruyn/speadi.git
+		pip install git+https://github.com/FZJ-JSC/speadi.git
    #+end_src
 
   Or, to install just into the current user's local environment, add the ~--user~ option:
    #+begin_src bash
-		pip install --user git+https://github.com/EmileDeBruyn/speadi.git
+		pip install --user git+https://github.com/FZJ-JSC/speadi.git
    #+end_src
 * RDFs
    Normally, Radial Distribution Functions used in atomistic simulations are averaged over entire trajectories. ~SPEADI~ averages over user-defined windows of time. This gives a separate RDF between group /a/ and /b/ for each window in the trajectory.
@@ -57,18 +57,18 @@ trajectories of proteins and other biomolecules.
    
    To install ~JAX~ and ~jaxlib~ along with ~SPEADI~, simply add the ~jax~ extra to ~pip~:
    #+begin_src bash
-		pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[jax]'
+		pip install 'git+https://github.com/FZJ-JSC/speadi.git#egg=SPEADI[jax]'
    #+end_src
    Note that by default, installing ~jax~ using pip (through pypi) only enables CPU acceleration. To enable GPU or TPU acceleration, please see https://github.com/google/jax for details on how to obtain a ~JAX~ installation for the specific ~CuDNN~ version in your environment.
    
    To install ~Numba~ along with ~SPEADI~, simply add the ~numba~ extra to ~pip~:
    #+begin_src bash
-		pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[numba]'
+		pip install 'git+https://github.com/FZJ-JSC/speadi.git#egg=SPEADI[numba]'
    #+end_src
    
    Or, to install both ~jax~ and ~numba~ alongside ~SPEADI~, add the ~all~ extra to ~pip~:
    #+begin_src bash
-		pip install 'git+https://github.com/EmileDeBruyn/speadi.git#egg=SPEADI[all]'
+		pip install 'git+https://github.com/FZJ-JSC/speadi.git#egg=SPEADI[all]'
    #+end_src
    
    The ~--user~ pip option may be added to all of these commands to install just for the current user.
@@ -76,7 +76,7 @@ trajectories of proteins and other biomolecules.
 ** Editable source installation
    Open up a terminal. Navigate to the location you want to clone this repository. Then, run the following to clone the entire repository:
    #+begin_src bash
-		git clone https://github.com/EmileDeBruyn/speadi
+		git clone https://github.com/FZJ-JSC/speadi
    #+end_src
    Then, install locally using ~pip~ by adding the ~-e~ option:
 	 #+begin_src bash
