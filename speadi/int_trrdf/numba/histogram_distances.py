@@ -33,4 +33,7 @@ def _compute_nrt_numba(rt_array, n_rt, window_unitcell_volumes, bin_edges):
     # Norming only over the number of particles in g1 and the frames
     n_rt = n_rt / Ni / n_frames
 
+    # Cumulative sum represents the integral of $g(r,t)$
+    n_rt = n_rt.cumsum()
+
     return n_rt.astype('float32')

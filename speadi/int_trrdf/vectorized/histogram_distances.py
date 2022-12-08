@@ -26,6 +26,10 @@ def _compute_nrt(rt_array, window_unitcell_volumes, r_range, nbins):
     n_frames = rt_array.shape[0]
     n_rt, edges = np.histogram(rt_array, range=r_range, bins=nbins)
 
+    # Norming only over the number of particles in g1 and the frames
     n_rt = n_rt / Ni / n_frames
+
+    # Cumulative sum represents the integral of $g(r,t)$
+    n_rt = n_rt.cumsum()
 
     return n_rt
