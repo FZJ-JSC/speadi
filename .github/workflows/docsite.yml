@@ -1,0 +1,17 @@
+name: "build doc site"
+on:
+  push:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.x
+      - run: pip install mkdocs mkdocs-material mkdocs-autorefs mkdocs-git-revision-date-localized-plugin mkdocs-material \
+                         mkdocs-material-extensions mkdocs-pdf-export-plugin mkdocs-with-pdf mkdocstrings mkdocstrings-python \
+                         mkgendocs mkpdfs-mkdocs black
+      - run: mkdocs gh-deploy --force --clean --verbose
