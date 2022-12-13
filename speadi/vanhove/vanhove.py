@@ -87,7 +87,7 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200,
     >>> protein_by_atom = [top.select(f'index {ix}') for
     >>>                    ix in top.select('protein and not type H')]
 
-    Finally, run the van Hove Function (VHF) by calling `vhf()`.
+    Finally, run the van Hove Function (VHF) by calling `vanhove()`.
     >>> r, g_s, g_d = mde.vanhove(trajectory, protein_by_atom, [na, cl], top=top,
     >>>                           n_windows=1000, window_size=500, skip=0,
     >>>                           pbc='general', stride=1, nbins=400)
