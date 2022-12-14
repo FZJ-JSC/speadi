@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite the version you're using as below."
+authors:
+  - family-names: de Bruyn
+    given-names: Emile
+    orcid: https://orcid.org/0000-0002-8748-255
+title: "SPEADI: Scalable Protein Environment Analysis for Dynamics and Ions"
+version: 1.0.0
+doi: 10.5281/zenodo.7436713
+date-released: 2022-12-14
