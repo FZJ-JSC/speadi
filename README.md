@@ -2,7 +2,7 @@
 
 A Python package for the characterisation of local chemical environment dynamics for Molecular Dynamics trajectories of proteins and other biomolecules.
 
-<a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/coverage.svg" /></a>
+<a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/coverage.svg" /></a><a href="https://doi.org/10.5281/zenodo.7436713"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7436713.svg" alt="DOI"></a>
 
 # Introduction
 
@@ -158,9 +158,11 @@ r, G_s, G_d = mde.vanhove(trajectory, target_atom, [water_H],
 
 As the reference and target particles are non-identical, $G_s$ is empty. The distinct part, $G_d$, gives us the time-dependent dynamic correlation between the two types of particles.
 
-## [WIP] Citing `SPEADI`
+## Citing `SPEADI`
 
-Add Zenodo link when tagging first release version.
+<a href="https://doi.org/10.5281/zenodo.7436713"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7436713.svg" alt="DOI"></a>
+
+Zenodo DOI for the current `SPEADI` version: https://doi.org/10.5281/zenodo.7436713
 
 Add DOI of Paper after preprint and/or acceptance.
 
