@@ -1,12 +1,14 @@
-<h1 class="title"> SPEADI <br /> </h1>
+<h1 class="title"> SPEADI: Scalable Protein Environment Analysis for Dynamics and Ions <br /> </h1>
 
-A Python package that aims to characterise the dynamics of local chemical environments from Molecular Dynamics trajectories of proteins and other biomolecules.
+A Python package for the characterisation of local chemical environment dynamics for Molecular Dynamics trajectories of proteins and other biomolecules.
 
 <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/coverage.svg" /></a>
 
 # Introduction
 
-SPEADI provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).
+`SPEADI` provides the user tools with which to characterise the local chemical environment using Molecular Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF): time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).
+
+# Documentation
 
 # Quick install
 
@@ -92,6 +94,8 @@ pip install -e speadi
 
 ## Usage
 
+### Time-Resolved Radial Distribution Functions (TRRDFs)
+
 To calculate the time-resolved RDF for every single protein heavy atom with each ion species in solvent, you first need to specify the trajectory and topology to be used:
 
 ```python
@@ -130,13 +134,39 @@ r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_window
               skip=0, pbc='general', stride=1, nbins=400)
 ```
 
-## [WIP] Citation
+### van Hove Functions (VHFs)
 
-Add Zenodo link as soon as a first public release is planned to coincide with open-sourcing.
+First, load a topology as above using `MDTraj`, then define the reference and target groups:
+
+```python
+import mdtraj as md
+
+top = md.load_topology(topology)
+water_H = top.select('name HW2')
+target_atom = top.select('resid 129 and name OG')
+```
+
+In this example, we're looking at the stability of the water structure surrounding the side-chain terminal oxygen in a serine residue.
+
+Next, calculate the VHF for this site over the whole trajectory:
+
+```python
+r, G_s, G_d = mde.vanhove(trajectory, target_atom, [water_H], 
+                        top=top, n_windows=1000, window_size=500,
+                        skip=0, pbc='general', stride=1, nbins=400)
+```
+
+As the reference and target particles are non-identical, $G_s$ is empty. The distinct part, $G_d$, gives us the time-dependent dynamic correlation between the two types of particles.
+
+## [WIP] Citing `SPEADI`
+
+Add Zenodo link when tagging first release version.
+
+Add DOI of Paper after preprint and/or acceptance.
 
 ## Acknowledgments
 
-We gratefully acknowledge the following institutions for their support in the development of SPEADI and for granting compute time to develop and test SPEADI.
+We gratefully acknowledge the following institutions for their support in the development of `SPEADI` and for granting compute time to develop and test `SPEADI`.
 
 -   Gauss Centre for Supercomputing e.V. (www.gauss-centre.eu) and the John von Neumann Institute for Computing (NIC)
 

@@ -1,22 +1,25 @@
-#+title: SPEADI
+#+title: SPEADI: Scalable Protein Environment Analysis for Dynamics and Ions
 #+author: Emile de Bruyn
 #+export_file_name: ../README.md
 #+options: toc:nil
 
 <h1 class="title">
-SPEADI
+SPEADI: Scalable Protein Environment Analysis for Dynamics and Ions
 <br />
 </h1>
 
-A Python package that aims to characterise the dynamics of local chemical environments from Molecular Dynamics
-trajectories of proteins and other biomolecules. 
+A Python package for the characterisation of local chemical environment dynamics for Molecular Dynamics
+trajectories of proteins and other biomolecules.
 
 #+html: <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="pipeline status" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/pipeline.svg" /></a>  <a href="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/-/commits/master"><img alt="coverage report" src="https://gitlab.jsc.fz-juelich.de/debruyn1/speadi/badges/master/coverage.svg" /></a>
 
 * Introduction
-  SPEADI provides the user tools with which to characterise the local chemical environment using Molecular
+  ~SPEADI~ provides the user tools with which to characterise the local chemical environment using Molecular
   Dynamics data. At the moment, it implements two variations of the pair radial distribution function (RDF):
   time-resolved RDFs (TRRDFs) and van Hove dynamic correlation functions (VHFs).  
+
+* Documentation
+  
   
 * Quick install
   For installation into the default python environment, run the following pip command in a terminal:
@@ -28,6 +31,7 @@ trajectories of proteins and other biomolecules.
    #+begin_src bash
 		pip install --user git+https://github.com/FZJ-JSC/speadi.git
    #+end_src
+   
 * RDFs
    Normally, Radial Distribution Functions used in atomistic simulations are averaged over entire trajectories. ~SPEADI~ averages over user-defined windows of time. This gives a separate RDF between group /a/ and /b/ for each window in the trajectory.
    
@@ -83,42 +87,66 @@ trajectories of proteins and other biomolecules.
 		pip install -e speadi
    #+end_src
 
-**  Usage
-   To calculate the time-resolved RDF for every single protein heavy atom with each ion species in solvent, you first need to specify the trajectory and topology to be used:
-   #+begin_src python
-     topology = './topology.gro'
-     trajectory = './trajectory.xtc'
-   #+end_src 
-   Next, load the topology in ~MDTraj~ and subset into useful groups:
-   #+begin_src python
-     import mdtraj as md
+** Usage
+***  Time-Resolved Radial Distribution Functions (TRRDFs)
+    To calculate the time-resolved RDF for every single protein heavy atom with each ion species in solvent, you first need to specify the trajectory and topology to be used:
+    #+begin_src python
+      topology = './topology.gro'
+      trajectory = './trajectory.xtc'
+    #+end_src 
+    Next, load the topology in ~MDTraj~ and subset into useful groups:
+    #+begin_src python
+      import mdtraj as md
 
-     top = md.load_topology(topology)
-     na = top.select('name NA')
-     cl = top.select('name CL')
-     protein_by_atom = [top.select(f'index {ix}') for ix in top.select('protein and not type H')]
-   #+end_src
-   Now you can load ~SPEADI~ to obtain RDFs:
-   #+begin_src python
-     import speadi as sp
-   #+end_src
-   To make an RDF for each heavy protein atom 
-   #+begin_src python
-     r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
-                   skip=0, pbc='general', stride=1, nbins=400)
-   #+end_src
-   To repeat the analysis, but obtain integral of $g(r)$ instead, simply replace ~trrdf~ with ~int_trrdf~ instead.
-   #+begin_src python
-     r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
-                   skip=0, pbc='general', stride=1, nbins=400)
-   #+end_src
+      top = md.load_topology(topology)
+      na = top.select('name NA')
+      cl = top.select('name CL')
+      protein_by_atom = [top.select(f'index {ix}') for ix in top.select('protein and not type H')]
+    #+end_src
+    Now you can load ~SPEADI~ to obtain RDFs:
+    #+begin_src python
+      import speadi as sp
+    #+end_src
+    To make an RDF for each heavy protein atom 
+    #+begin_src python
+      r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+                    skip=0, pbc='general', stride=1, nbins=400)
+    #+end_src
+    To repeat the analysis, but obtain integral of $g(r)$ instead, simply replace ~trrdf~ with ~int_trrdf~ instead.
+    #+begin_src python
+      r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+                    skip=0, pbc='general', stride=1, nbins=400)
+    #+end_src
 
-** [WIP] Citation
-   Add Zenodo link as soon as a first public release is planned to coincide with open-sourcing.
+*** van Hove Functions (VHFs)
+    First, load a topology as above using ~MDTraj~, then define the reference and target groups:
+    #+begin_src python
+      import mdtraj as md
+      
+      top = md.load_topology(topology)
+      water_H = top.select('name HW2')
+      target_atom = top.select('resid 129 and name OG')
+    #+end_src
+    In this example, we're looking at the stability of the water structure surrounding the side-chain terminal oxygen in a 
+    serine residue.
+    
+    Next, calculate the VHF for this site over the whole trajectory:
+    #+begin_src python
+      r, G_s, G_d = mde.vanhove(trajectory, target_atom, [water_H], 
+                              top=top, n_windows=1000, window_size=500,
+                              skip=0, pbc='general', stride=1, nbins=400)
+    #+end_src
+    As the reference and target particles are non-identical, $G_s$ is empty. The distinct part, $G_d$, gives us the 
+    time-dependent dynamic correlation between the two types of particles.
+    
+** [WIP] Citing ~SPEADI~
+   Add Zenodo link when tagging first release version.
+
+   Add DOI of Paper after preprint and/or acceptance.
 
 ** Acknowledgments
-    We gratefully acknowledge the following institutions for their support in the development of SPEADI and
-    for granting compute time to develop and test SPEADI.
+    We gratefully acknowledge the following institutions for their support in the development of ~SPEADI~ and
+    for granting compute time to develop and test ~SPEADI~.
 
     - Gauss Centre for Supercomputing e.V. (www.gauss-centre.eu) and the John von Neumann Institute for Computing (NIC)
     on the GCS Supercomputer JUWELS at Jülich Supercomputing Centre (JSC)
