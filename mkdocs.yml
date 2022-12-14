@@ -1,5 +1,5 @@
-site_name: SPEADI
-repo_url: https://gitlab.jsc.fz-juelich.de/debruyn1/speadi
+site_name: SPEADI: Scalable Protein Environment Analysis for Dynamics and Ions
+repo_url: https://github.com/FZJ-JSC/speadi
 repo_name: SPEADI
 
 theme:
@@ -11,7 +11,7 @@ theme:
     - navigation.expand
     - toc.follow
   icon:
-    repo: fontawesome/brands/gitlab
+    repo: fontawesome/brands/github
 
 nav:
   - Documentation:
