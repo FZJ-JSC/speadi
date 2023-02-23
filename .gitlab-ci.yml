@@ -15,12 +15,14 @@ cache:
 .install_dependencies:
   before_script:
     - pip install virtualenv
+    - pip install -U setuptools
+    - pip install pytest pytest-cov pytest-xdist
+    - pytest tests/test_install_from_git.py
+    - pip uninstall -y speadi
     - virtualenv venv_"${PYTHON_VERSION}"
     - source venv_"${PYTHON_VERSION}"/bin/activate
     - python -V
-    - pip install -U setuptools
     - pip install -e '.[all]'
-    - pip install pytest pytest-cov pytest-xdist
 
 .pages_dependencies:
   before_script:
@@ -45,7 +47,7 @@ py39:pytest:
   tags:
   - public-docker
   script:
-    - pytest -n 4 --log-cli-level=INFO --cov=speadi tests/
+    - pytest -n 2 --log-cli-level=INFO --cov=speadi --ignore=tests/test_install_from_git.py tests/
     - coverage xml -o tests/coverage.xml
   coverage: '/^TOTAL.+?(\d+\%)$/'
   artifacts:
@@ -64,7 +66,7 @@ various:pytest:
   tags:
   - public-docker
   script:
-    - pytest --log-cli-level=INFO --cov=speadi tests/
+    - pytest -n 2 --log-cli-level=INFO --cov=speadi --ignore=tests/test_install_from_git.py tests/
     - coverage xml -o tests/"${PYTHON_VERSION}"_coverage.xml
   artifacts:
     reports:
