@@ -16,13 +16,13 @@ cache:
   before_script:
     - pip install virtualenv
     - pip install -U setuptools
-    - pip install pytest pytest-cov pytest-xdist
-    - pytest tests/test_install_from_git.py
-    - pip uninstall -y speadi
     - virtualenv venv_"${PYTHON_VERSION}"
     - source venv_"${PYTHON_VERSION}"/bin/activate
-    - python -V
+    - pip install pytest pytest-cov pytest-xdist
+    - pip install --upgrade "jax[cpu]" jaxlib numba scipy numpy
     - pip install -e '.[all]'
+    - source venv_"${PYTHON_VERSION}"/bin/activate
+    - python -V
 
 .pages_dependencies:
   before_script:
