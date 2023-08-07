@@ -54,14 +54,14 @@ def quadruple_refs_speadi_rdf(request, paths, nacl_top, mdtraj_groups):
     return r, grt, request.param[0]
 
 
-def test_rdf_binning_gmx(mde_rdf, gmx_rdf):
+def test_rdf_binning_gmx(speadi_rdf, gmx_rdf):
     r, _, ref = speadi_rdf
     gmx_r, _ = gmx_rdf
 
     np.testing.assert_allclose(r, gmx_r[ref][:-1], rtol=1e-4)
 
 
-def test_rdf_binning_mdtraj(mde_rdf, mdtraj_rdf):
+def test_rdf_binning_mdtraj(speadi_rdf, mdtraj_rdf):
     r, _, ref = speadi_rdf
     mdtraj_r, _ = mdtraj_rdf
 
@@ -69,7 +69,7 @@ def test_rdf_binning_mdtraj(mde_rdf, mdtraj_rdf):
 
 
 @pytest.mark.skip('Binning differences with GROMACS causes small differences.')
-def test_rdf_results_gmx(mde_rdf, gmx_rdf):
+def test_rdf_results_gmx(speadi_rdf, gmx_rdf):
     _, grt, ref = speadi_rdf
     _, gmx_gr = gmx_rdf
     gr = np.mean(grt, axis=(0,1,2))
@@ -77,7 +77,7 @@ def test_rdf_results_gmx(mde_rdf, gmx_rdf):
     np.testing.assert_allclose(gr, gmx_gr[ref], rtol=5e-2)
 
 
-def test_single_rdf_results_mdtraj(mde_rdf, mdtraj_rdf):
+def test_single_rdf_results_mdtraj(speadi_rdf, mdtraj_rdf):
     _, grt, ref = speadi_rdf
     _, mdtraj_gr = mdtraj_rdf
     gr = np.mean(grt, axis=(0,1,2))
@@ -85,7 +85,7 @@ def test_single_rdf_results_mdtraj(mde_rdf, mdtraj_rdf):
     np.testing.assert_allclose(gr, mdtraj_gr[ref], rtol=5e-2)
 
 
-def test_double_rdf_results_mdtraj(double_refs_mde_rdf, mdtraj_rdf):
+def test_double_rdf_results_mdtraj(double_refs_speadi_rdf, mdtraj_rdf):
     _, grt, refs = double_refs_speadi_rdf
     _, mdtraj_gr = mdtraj_rdf
     gr1 = np.mean(grt[0], axis=(0,1))
@@ -95,7 +95,7 @@ def test_double_rdf_results_mdtraj(double_refs_mde_rdf, mdtraj_rdf):
     np.testing.assert_allclose(gr2, mdtraj_gr[refs[1]], rtol=5e-2)
 
 
-def test_quadruple_rdf_results_mdtraj(quadruple_refs_mde_rdf, mdtraj_rdf):
+def test_quadruple_rdf_results_mdtraj(quadruple_refs_speadi_rdf, mdtraj_rdf):
     _, grt, refs = quadruple_refs_speadi_rdf
     _, mdtraj_gr = mdtraj_rdf
     gr1 = np.mean(grt[0][0], axis=(0))

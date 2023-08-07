@@ -25,14 +25,14 @@ def speadi_vhf_rdf(request, paths, nacl_top, mdtraj_groups):
     return r, G_self, G_distinct, request.param[0]
 
 
-def test_rdf_binning_gmx(mde_vhf_rdf, gmx_rdf):
+def test_rdf_binning_gmx(speadi_vhf_rdf, gmx_rdf):
     r, _, _, ref = speadi_vhf_rdf
     gmx_r, _ = gmx_rdf
 
     np.testing.assert_allclose(r, gmx_r[ref][:-1], rtol=1e-4)
 
 
-def test_rdf_binning_mdtraj(mde_vhf_rdf, mdtraj_rdf):
+def test_rdf_binning_mdtraj(speadi_vhf_rdf, mdtraj_rdf):
     r, _, _, ref = speadi_vhf_rdf
     mdtraj_r, _ = mdtraj_rdf
 
@@ -40,7 +40,7 @@ def test_rdf_binning_mdtraj(mde_vhf_rdf, mdtraj_rdf):
 
 
 @pytest.mark.skip('Binning differences with GROMACS causes small differences.')
-def test_rdf_results_gmx(mde_vhf_rdf, gmx_rdf):
+def test_rdf_results_gmx(speadi_vhf_rdf, gmx_rdf):
     _, _, G_distinct, ref = speadi_vhf_rdf
     _, gmx_gr = gmx_rdf
     gr = np.mean(G_distinct, axis=(0,1,2))
@@ -48,7 +48,7 @@ def test_rdf_results_gmx(mde_vhf_rdf, gmx_rdf):
     np.testing.assert_allclose(gr, gmx_gr[ref], rtol=5e-2)
 
 
-def test_rdf_results_mdtraj(mde_vhf_rdf, mdtraj_rdf):
+def test_rdf_results_mdtraj(speadi_vhf_rdf, mdtraj_rdf):
     _, _, G_distinct, ref = speadi_vhf_rdf
     _, mdtraj_gr = mdtraj_rdf
     gr = np.mean(G_distinct, axis=(0,1,2))
