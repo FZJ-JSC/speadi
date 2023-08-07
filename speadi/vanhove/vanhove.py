@@ -74,7 +74,7 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200,
     --------
     First, import both `MDTraj` and `SPEADI` together.
     >>> import mdtraj as md
-    >>> import speadi as mde
+    >>> import speadi as sp
 
     Then, point to a particle simulation topology and trajectory (e.g. a Molecular Dynamics Simulation using `Gromacs`).
     >>> topology = './topology.gro'
@@ -88,7 +88,7 @@ def vanhove(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200,
     >>>                    ix in top.select('protein and not type H')]
 
     Finally, run the van Hove Function (VHF) by calling `vanhove()`.
-    >>> r, g_s, g_d = mde.vanhove(trajectory, protein_by_atom, [na, cl], top=top,
+    >>> r, g_s, g_d = sp.vanhove(trajectory, protein_by_atom, [na, cl], top=top,
     >>>                           n_windows=1000, window_size=500, skip=0,
     >>>                           pbc='general', stride=1, nbins=400)
 

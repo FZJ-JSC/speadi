@@ -123,14 +123,14 @@ import speadi as sp
 To make an RDF for each heavy protein atom
 
 ```python
-r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+r, g_rt = sp.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
               skip=0, pbc='general', stride=1, nbins=400)
 ```
 
 To repeat the analysis, but obtain integral of $g(r)$ instead, simply replace `trrdf` with `int_trrdf` instead.
 
 ```python
-r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+r, n_rt = sp.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
               skip=0, pbc='general', stride=1, nbins=400)
 ```
 
@@ -151,7 +151,7 @@ In this example, we're looking at the stability of the water structure surroundi
 Next, calculate the VHF for this site over the whole trajectory:
 
 ```python
-r, G_s, G_d = mde.vanhove(trajectory, target_atom, [water_H], 
+r, G_s, G_d = sp.vanhove(trajectory, target_atom, [water_H], 
                         top=top, n_windows=1000, window_size=500,
                         skip=0, pbc='general', stride=1, nbins=400)
 ```

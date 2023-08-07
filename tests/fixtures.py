@@ -2,7 +2,7 @@ from os.path import dirname
 import mdtraj as md
 from numba import set_num_threads
 set_num_threads(4)
-import speadi as mde
+import speadi as sp
 import numpy as np
 import pytest
 

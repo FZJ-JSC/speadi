@@ -109,12 +109,12 @@ trajectories of proteins and other biomolecules.
     #+end_src
     To make an RDF for each heavy protein atom 
     #+begin_src python
-      r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+      r, g_rt = sp.trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
                     skip=0, pbc='general', stride=1, nbins=400)
     #+end_src
     To repeat the analysis, but obtain integral of $g(r)$ instead, simply replace ~trrdf~ with ~int_trrdf~ instead.
     #+begin_src python
-      r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
+      r, n_rt = sp.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top, n_windows=1000, window_size=500,\
                     skip=0, pbc='general', stride=1, nbins=400)
     #+end_src
 
@@ -132,7 +132,7 @@ trajectories of proteins and other biomolecules.
     
     Next, calculate the VHF for this site over the whole trajectory:
     #+begin_src python
-      r, G_s, G_d = mde.vanhove(trajectory, target_atom, [water_H], 
+      r, G_s, G_d = sp.vanhove(trajectory, target_atom, [water_H],
                               top=top, n_windows=1000, window_size=500,
                               skip=0, pbc='general', stride=1, nbins=400)
     #+end_src

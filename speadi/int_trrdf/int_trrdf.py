@@ -61,7 +61,7 @@ def int_trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=20
     --------
     First, import both `MDTraj` and `SPEADI` together.
     >>> import mdtraj as md
-    >>> import speadi as mde
+    >>> import speadi as sp
 
     Then, point to a particle simulation topology and trajectory (e.g. a Molecular Dynamics Simulation using `Gromacs`).
     >>> topology = './topology.gro'
@@ -75,7 +75,7 @@ def int_trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=20
     >>>                    ix in top.select('protein and not type H')]
 
     Finally, run the Time-Resolved Radial Distribution Function (TRRDF) by calling `trrdf()`.
-    >>> r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top,
+    >>> r, n_rt = sp.int_trrdf(trajectory, protein_by_atom, [na, cl], top=top,
     >>>                         n_windows=1000, window_size=500, skip=0,
     >>>                         pbc='general', stride=1, nbins=400)
 

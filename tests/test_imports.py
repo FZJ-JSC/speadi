@@ -2,8 +2,8 @@ from fixtures import *
 
 
 def test_import_grt():
-    assert mde.trrdf == mde.trrdf
+    assert sp.trrdf == sp.trrdf
 
 
 def test_import_Grt():
-    assert mde.vanhove == mde.vanhove
+    assert sp.vanhove == sp.vanhove

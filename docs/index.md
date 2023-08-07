@@ -119,19 +119,19 @@ protein_by_atom = [top.select(f'index {ix}')
 
 Now you can load `SPEADI` to obtain RDFs:
 ```python
-import speadi as mde
+import speadi as sp
 ```
 
 To make an RDF for each heavy protein atom
 ```python
-r, g_rt = mde.trrdf(trajectory, protein_by_atom, [na, cl], 
+r, g_rt = sp.trrdf(trajectory, protein_by_atom, [na, cl], 
                     top=top, n_windows=1000, window_size=500,
                     skip=0, pbc='general', stride=1, nbins=400)
 ```
 
 To repeat the analysis, but obtain integral of $g(r)$ instead, simply replace `trrdf` with `int_trrdf` instead.
 ```python
-r, n_rt = mde.int_trrdf(trajectory, protein_by_atom, [na, cl], 
+r, n_rt = sp.int_trrdf(trajectory, protein_by_atom, [na, cl], 
                         top=top, n_windows=1000, window_size=500,
                         skip=0, pbc='general', stride=1, nbins=400)
 ```
@@ -150,7 +150,7 @@ serine residue.
 
 Next, calculate the VHF for this site over the whole trajectory:
 ```python
-r, G_s, G_d = mde.vanhove(trajectory, target_atom, [water_H], 
+r, G_s, G_d = sp.vanhove(trajectory, target_atom, [water_H], 
                         top=top, n_windows=1000, window_size=500,
                         skip=0, pbc='general', stride=1, nbins=400)
 ```

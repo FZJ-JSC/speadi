@@ -18,51 +18,51 @@ def idfn(args):
 
 
 @pytest.fixture(scope='module', params=single_ref_params, ids=idfn)
-def mde_rdf(request, paths, nacl_top, mdtraj_groups):
-    mde.JAX_AVAILABLE = request.param[2]
-    mde.NUMBA_AVAILABLE = request.param[3]
+def speadi_rdf(request, paths, nacl_top, mdtraj_groups):
+    sp.JAX_AVAILABLE = request.param[2]
+    sp.NUMBA_AVAILABLE = request.param[3]
 
-    r, grt = mde.trrdf(paths['traj_path'], mdtraj_groups[request.param[0]], mdtraj_groups['O'], top=nacl_top,
+    r, grt = sp.trrdf(paths['traj_path'], mdtraj_groups[request.param[0]], mdtraj_groups['O'], top=nacl_top,
                        pbc=request.param[1], n_windows=20, window_size=10, skip=0, stride=1, r_range=(0.0, 1.2),
                        nbins=120)
     return r, grt, request.param[0]
 
 
 @pytest.fixture(scope='module', params=double_ref_params, ids=idfn)
-def double_refs_mde_rdf(request, paths, nacl_top, mdtraj_groups):
-    mde.JAX_AVAILABLE = request.param[2]
-    mde.NUMBA_AVAILABLE = request.param[3]
+def double_refs_speadi_rdf(request, paths, nacl_top, mdtraj_groups):
+    sp.JAX_AVAILABLE = request.param[2]
+    sp.NUMBA_AVAILABLE = request.param[3]
     refs = request.param[0]
     ref_groups = [mdtraj_groups[ref] for ref in refs]
 
-    r, grt = mde.trrdf(paths['traj_path'], ref_groups, mdtraj_groups['O'], top=nacl_top,
+    r, grt = sp.trrdf(paths['traj_path'], ref_groups, mdtraj_groups['O'], top=nacl_top,
                        pbc=request.param[1], n_windows=20, window_size=10, skip=0, stride=1, r_range=(0.0, 1.2),
                        nbins=120)
     return r, grt, request.param[0]
 
 
 @pytest.fixture(scope='module', params=double_ref_params, ids=idfn)
-def quadruple_refs_mde_rdf(request, paths, nacl_top, mdtraj_groups):
-    mde.JAX_AVAILABLE = request.param[2]
-    mde.NUMBA_AVAILABLE = request.param[3]
+def quadruple_refs_speadi_rdf(request, paths, nacl_top, mdtraj_groups):
+    sp.JAX_AVAILABLE = request.param[2]
+    sp.NUMBA_AVAILABLE = request.param[3]
     refs = request.param[0]
     ref_groups = [mdtraj_groups[ref] for ref in refs]
 
-    r, grt = mde.trrdf(paths['traj_path'], ref_groups, [mdtraj_groups['O'],mdtraj_groups['NA']], top=nacl_top,
+    r, grt = sp.trrdf(paths['traj_path'], ref_groups, [mdtraj_groups['O'],mdtraj_groups['NA']], top=nacl_top,
                        pbc=request.param[1], n_windows=20, window_size=10, skip=0, stride=1, r_range=(0.0, 1.2),
                        nbins=120)
     return r, grt, request.param[0]
 
 
 def test_rdf_binning_gmx(mde_rdf, gmx_rdf):
-    r, _, ref = mde_rdf
+    r, _, ref = speadi_rdf
     gmx_r, _ = gmx_rdf
 
     np.testing.assert_allclose(r, gmx_r[ref][:-1], rtol=1e-4)
 
 
 def test_rdf_binning_mdtraj(mde_rdf, mdtraj_rdf):
-    r, _, ref = mde_rdf
+    r, _, ref = speadi_rdf
     mdtraj_r, _ = mdtraj_rdf
 
     np.testing.assert_allclose(r, mdtraj_r[ref], rtol=1e-4)
@@ -70,7 +70,7 @@ def test_rdf_binning_mdtraj(mde_rdf, mdtraj_rdf):
 
 @pytest.mark.skip('Binning differences with GROMACS causes small differences.')
 def test_rdf_results_gmx(mde_rdf, gmx_rdf):
-    _, grt, ref = mde_rdf
+    _, grt, ref = speadi_rdf
     _, gmx_gr = gmx_rdf
     gr = np.mean(grt, axis=(0,1,2))
 
@@ -78,7 +78,7 @@ def test_rdf_results_gmx(mde_rdf, gmx_rdf):
 
 
 def test_single_rdf_results_mdtraj(mde_rdf, mdtraj_rdf):
-    _, grt, ref = mde_rdf
+    _, grt, ref = speadi_rdf
     _, mdtraj_gr = mdtraj_rdf
     gr = np.mean(grt, axis=(0,1,2))
 
@@ -86,7 +86,7 @@ def test_single_rdf_results_mdtraj(mde_rdf, mdtraj_rdf):
 
 
 def test_double_rdf_results_mdtraj(double_refs_mde_rdf, mdtraj_rdf):
-    _, grt, refs = double_refs_mde_rdf
+    _, grt, refs = double_refs_speadi_rdf
     _, mdtraj_gr = mdtraj_rdf
     gr1 = np.mean(grt[0], axis=(0,1))
     gr2 = np.mean(grt[1], axis=(0,1))
@@ -96,7 +96,7 @@ def test_double_rdf_results_mdtraj(double_refs_mde_rdf, mdtraj_rdf):
 
 
 def test_quadruple_rdf_results_mdtraj(quadruple_refs_mde_rdf, mdtraj_rdf):
-    _, grt, refs = quadruple_refs_mde_rdf
+    _, grt, refs = quadruple_refs_speadi_rdf
     _, mdtraj_gr = mdtraj_rdf
     gr1 = np.mean(grt[0][0], axis=(0))
     gr2 = np.mean(grt[1][0], axis=(0))
