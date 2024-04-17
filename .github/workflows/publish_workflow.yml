@@ -5,7 +5,7 @@ on:
       - master
 jobs:
     publish-to-testpypi:
-    name: Publish Python 🐍 distribution 📦 to TestPyPI
+    name: Publish Python distribution to TestPyPI
     needs:
     - build
     runs-on: ubuntu-latest
