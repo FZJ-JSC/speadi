@@ -5,6 +5,6 @@ authors:
     given-names: Emile
     orcid: https://orcid.org/0000-0002-8748-255
 title: "SPEADI: Scalable Protein Environment Analysis for Dynamics and Ions"
-version: 1.0.0
+version: 1.0.1
 doi: 10.5281/zenodo.7436713
-date-released: 2022-12-14
+date-released: 2024-04-17
