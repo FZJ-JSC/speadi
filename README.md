@@ -160,11 +160,23 @@ As the reference and target particles are non-identical, $G_s$ is empty. The dis
 
 ## Citing `SPEADI`
 
+If you're using `SPEADI` for academic work, please cite both the following original paper published in *Biology*, as well as the Zenodo DOI for the version that you are using.
+
+### Original publication
+
+> de Bruyn, E., Dorn, A. E., Zimmermann, O., & Rossetti, G. (2023). *SPEADI: Accelerated Analysis of IDP-Ion Interactions from MD-trajectories.* Biology, 12(4), 581. http://dx.doi.org/10.3390/biology12040581
+
+Linked online version: https://www.mdpi.com/2079-7737/12/4/581
+
+### Zenodo
+
 <a href="https://doi.org/10.5281/zenodo.7436713"><img src="https://zenodo.org/badge/DOI/10.5281/zenodo.7436713.svg" alt="DOI"></a>
 
 Zenodo DOI for the current `SPEADI` version: https://doi.org/10.5281/zenodo.7436713
 
-Add DOI of Paper after preprint and/or acceptance.
+### Papers using `SPEADI`
+
+In due time, a list of published papers that contain analysis performed using `SPEADI` will appear here.
 
 ## Acknowledgments
 
