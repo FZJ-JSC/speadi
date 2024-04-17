@@ -1,6 +1,11 @@
 from setuptools import setup, find_packages
+from pathlib import Path
+
 
 __version__ = '1.0.0'
+
+this_directory = Path(__file__).parent
+long_description = (this_directory / 'README.md').read_text()
 
 setup(
     name='SPEADI',
@@ -13,6 +18,6 @@ setup(
     from Molecular Dynamics trajectories of proteins and other biomolecules.
     """,
     long_description_content_type="text/markdown",
-    long_description=README,
+    long_description=long_description,
     url="https://github.com/FZJ-JSC/speadi",
 )
