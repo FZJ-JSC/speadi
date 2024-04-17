@@ -23,7 +23,7 @@ jobs:
     runs-on: ubuntu-latest
     
     environment:
-      name: TestPyPI
+      name: testpypi
       url: https://test.pypi.org/p/SPEADI
     
     permissions:
