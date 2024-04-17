@@ -102,7 +102,6 @@ jobs:
       needs:
       - build
       runs-on: ubuntu-latest
-      continue-on-error: true
   
       environment:
         name: testpypi
@@ -121,3 +120,4 @@ jobs:
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
