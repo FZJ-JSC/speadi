@@ -39,18 +39,24 @@ def _append_grts(g_rts, n, xyz, g1, g2, cuvec, cuvol, r_range, nbins, pbc, union
 
 
 def _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range, skip, stride, top, traj,
-                                   window_size):
+                                   window_size, pair_chunk_size=128, frame_chunk_size=16):
     if isinstance(traj, str) and isinstance(top, md.core.topology.Topology):
         g1_lens = np.array([len(x) for x in g1], dtype=np.int32)
         g2_lens = np.array([len(x) for x in g2], dtype=np.int32)
 
-        unions = get_all_unions(g1, g2, g1_lens, g2_lens)
+        from speadi import JAX_AVAILABLE, NUMBA_AVAILABLE
+        # The JAX blocks exclude self pairs using atom IDs. Avoid constructing
+        # full group intersections (which can themselves be very large).
+        unions = None if JAX_AVAILABLE else get_all_unions(g1, g2, g1_lens, g2_lens)
 
         bin_edges = np.linspace(r_range[0], r_range[1], nbins + 1, dtype=np.float32)
         r = 0.5 * (bin_edges[1:] + bin_edges[:-1])
 
-        from speadi import JAX_AVAILABLE, NUMBA_AVAILABLE
         _append_grts_mic = _get_acc_functions(JAX_AVAILABLE, NUMBA_AVAILABLE)
+        if JAX_AVAILABLE:
+            from functools import partial
+            _append_grts_mic = partial(_append_grts_mic, pair_chunk_size=pair_chunk_size,
+                                      frame_chunk_size=frame_chunk_size)
 
         with md.open(traj) as f:
             f.seek(skip)

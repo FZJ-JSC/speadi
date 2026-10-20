@@ -92,6 +92,16 @@ Then, install locally using `pip` by adding the `-e` option:
 pip install -e speadi
 ```
 
+## Histogram bins
+
+SPEADI uses NumPy/MDTraj/MDAnalysis bin conventions: each bin includes its
+lower edge and excludes its upper edge, except the final bin, which includes
+`r_range[1]`. Distances outside `r_range` are ignored. Returned radii are bin
+midpoints. Floating-point precision can still affect distances close to edges.
+
+For reproducible performance measurements using the bundled test trajectories,
+see [the benchmark guide](benchmarks/README.md).
+
 ## Usage
 
 ### Time-Resolved Radial Distribution Functions (TRRDFs)

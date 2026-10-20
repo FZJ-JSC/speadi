@@ -4,12 +4,14 @@ two groups of particles for specified windows along a trajectory g(r,t).
 Groups can also consist of single particles.
 """
 
+from numbers import Integral
+
 from .utils import _calculate_according_to_inputs
 from ..common_tools.result_arrays import _trrdf_results as _construct_results_array
 
 
 def trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, skip=1, stride=10, r_range=(0.0, 2.0),
-          nbins=400):
+          nbins=400, *, pair_chunk_size=128, frame_chunk_size=16):
     """
     Calculate g(r,t) for two groups given in a trajectory. g(r) is
     calculated for each frame in the trajectory, then averaged over
@@ -49,13 +51,21 @@ def trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, s
         Tuple over which r in g(r,t) is defined.
     nbins : int
         Number of bins (points in r to consider) in g(r,t)
+    pair_chunk_size : int
+        Maximum atoms from each group per JAX distance block (default 128).
+        Smaller values reduce device memory at the cost of more dispatches.
+        Ignored by the NumPy and Numba backends.
+    frame_chunk_size : int
+        Maximum frames per JAX distance block (default 16). Does not change
+        the averaging window or stride. Ignored by other backends.
 
     Returns
     -------
     r : np.array
         bin centers of g(r,t)
     g_rt : np.array
-        averaged function values of g(r,t) for each time from t=0 considered
+        Averaged function values of g(r,t) for each time from t=0 considered.
+        Returned in NumPy host memory, including when using JAX.
 
     Examples
     --------
@@ -86,9 +96,12 @@ def trrdf(traj, g1, g2, top=None, pbc='ortho', n_windows=100, window_size=200, s
     - the $g(r,t)$ function with shape $N$(reference groups)$\\times N$(target groups)$\\times N$(windows)$\\times N$(radial bins)
 
     """
+    for name, value in (("pair_chunk_size", pair_chunk_size), ("frame_chunk_size", frame_chunk_size)):
+        if isinstance(value, bool) or not isinstance(value, Integral) or value < 1:
+            raise ValueError(f"{name} must be a positive integer")
     g_rt, g1, g2 = _construct_results_array(g1, g2, n_windows, nbins)
 
     r, g_rt = _calculate_according_to_inputs(g1, g2, g_rt, n_windows, nbins, pbc, r_range, skip, stride,
-                                             top, traj, window_size)
+                                             top, traj, window_size, pair_chunk_size, frame_chunk_size)
 
     return r, g_rt

@@ -1,76 +1,27 @@
-"""
-Simplified histogram function, that is able to be parallelised. Numpy's default 1d histogram function isn't able to run in numba's nopython mode during e.g. a prange.
-
-Boost-histogram might be faster for single histograms, but also aren't able to run during a prange without additional modification.
-
-Modified from the following sources:
-https://github.com/numba/numba-examples/blob/master/examples/density_estimation/histogram/impl.py
-https://numba.pydata.org/numba-examples/examples/density_estimation/histogram/results.html
-"""
-
+"""Numba-compatible histograms with NumPy's bin-edge conventions."""
 import numpy as np
-from numba import njit, float32, int32
+from numba import njit, int32
 
-opts = dict(parallel=False, fastmath=True, nogil=True, cache=False, debug=False)
+# Do not enable fastmath: range checks must also reject NaN and infinities.
+opts = dict(parallel=False, fastmath=False, nogil=True, cache=False, debug=False)
 
 
 @njit(['i4(f4,f4[:])'], **opts)
 def _compute_bin(x, bin_edges):
-    """
-    Compute the bin for a given value x.
-
-    Parameters
-    ----------
-    x : float
-        number to return bin for
-    bin_edges : numpy.array
-        array containing all bin edges
-
-    Returns
-    -------
-    bin : float
-    """
-
-    # assuming uniform bins for now
-    n = bin_edges.shape[0] - 1
-    a_min = bin_edges[0]
-    a_max = bin_edges[-1]
-
-    # special case to mirror NumPy behavior for last bin
-    if x == a_max:
-        return n - 1 # a_max always in last bin
-
-    bin = int(n * (x - a_min) / (a_max - a_min))
-
-    if bin < 0 or bin >= n:
-        # return None
-        return 9999
-    else:
-        return bin
+    """Return a bin index, or -1 for a value outside the explicit edges."""
+    if not (bin_edges[0] <= x <= bin_edges[-1]):
+        return -1
+    if x == bin_edges[-1]:
+        return len(bin_edges) - 2
+    return np.searchsorted(bin_edges, x, side='right') - 1
 
 
 @njit(['i4[:](f4[:],f4[:])', 'i4[:](f4[:,:],f4[:])', 'i4[:](f4[:,:,:],f4[:])'], **opts)
 def _histogram(a, bin_edges):
-    """
-    Compute the histogram for an array a, given an array of bin edges.
-
-    Parameters
-    ----------
-    a : numpy.array
-        array to obtain a histogram for
-    bin_edges : numpy.array
-        array containing all bin edges
-
-    Returns
-    -------
-    hist : numpy.array
-    """
-    hist = np.zeros((bin_edges.shape[0],), dtype=int32)
-
+    """Count [left, right) bins, including the final right edge."""
+    hist = np.zeros(len(bin_edges) - 1, dtype=int32)
     for x in a.flat:
-        bin = _compute_bin(x, bin_edges)
-        # if bin is not None:
-        if bin < 9999:
-                hist[int(bin)] += 1
-
-    return hist[:-1]
+        index = _compute_bin(x, bin_edges)
+        if index >= 0:
+            hist[index] += 1
+    return hist

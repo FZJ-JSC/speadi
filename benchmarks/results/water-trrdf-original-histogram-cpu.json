@@ -1,0 +1,37 @@
+{
+  "case": "trrdf",
+  "backend": "jax",
+  "pbc": "ortho",
+  "threads": 2,
+  "prefix_read_seconds": 0.05554099997971207,
+  "workload": "water",
+  "trajectory": "/Users/emiledebruyn/repos/speadi/tests/data/nacl_box.xtc",
+  "reference_selection": "name O",
+  "target_selection": "name O",
+  "reference_atoms": 2139,
+  "target_atoms": 2139,
+  "dense_pairs_per_frame": 4575321,
+  "python": "3.11.11",
+  "platform": "macOS-26.6.2-arm64-arm-64bit",
+  "versions": {
+    "numpy": "2.4.6",
+    "mdtraj": "1.11.1.post2",
+    "jax": "0.10.2",
+    "numba": "0.67.0"
+  },
+  "n_windows": 20,
+  "window_size": 10,
+  "analyzed_frames": 200,
+  "first_call_seconds": 5.435938082984649,
+  "warm_seconds": [
+    3.5165162500343286,
+    2.9404802920180373,
+    3.009414416970685
+  ],
+  "warm_median_seconds": 3.009414416970685,
+  "validation": "saved MDTraj RDF",
+  "warm_frames_per_second": 66.4581118745761,
+  "dense_pair_frame_evaluations": 915064200,
+  "histogram_implementation": "original arithmetic histogram from baseline revision",
+  "baseline_revision": "cc1131f5c8aeeff4d1562f2734588d555c21dd3d"
+}
